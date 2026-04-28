@@ -1,0 +1,2783 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>QVEMA Amplify Event Brongniart</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Playfair+Display:wght@700;800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --ink: #0a0e1a;
+    --ink-2: #131a2e;
+    --ink-3: #1c2541;
+    --paper: #fafafa;
+    --paper-2: #f3f4f7;
+    --line: #e5e7eb;
+    --line-2: #eef0f4;
+    --gold: #d4af37;
+    --gold-2: #b8941f;
+    --gold-soft: #faf3dd;
+    --emerald: #059669;
+    --emerald-soft: #d1fae5;
+    --amber: #d97706;
+    --amber-soft: #fef3c7;
+    --rose: #dc2626;
+    --rose-soft: #fee2e2;
+    --indigo: #4f46e5;
+    --indigo-soft: #e0e7ff;
+    --text: #0f172a;
+    --text-soft: #475569;
+    --text-muted: #94a3b8;
+    --shadow-xs: 0 1px 2px rgba(15,23,42,.04);
+    --shadow-sm: 0 1px 3px rgba(15,23,42,.06), 0 1px 2px rgba(15,23,42,.04);
+    --shadow-md: 0 4px 12px rgba(15,23,42,.06), 0 2px 4px rgba(15,23,42,.04);
+    --shadow-lg: 0 12px 32px rgba(15,23,42,.08), 0 4px 12px rgba(15,23,42,.04);
+    --shadow-xl: 0 24px 64px rgba(15,23,42,.12);
+    --radius-sm: 8px;
+    --radius: 12px;
+    --radius-lg: 16px;
+    --radius-xl: 20px;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { height: 100%; }
+  body {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    background: var(--paper);
+    color: var(--text);
+    font-size: 14px;
+    line-height: 1.55;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    letter-spacing: -0.005em;
+  }
+
+  .serif { font-family: 'Playfair Display', Georgia, serif; letter-spacing: -0.02em; }
+
+  button { font-family: inherit; }
+  a { color: inherit; }
+
+  /* ================= LAYOUT ================= */
+  .app {
+    display: grid;
+    grid-template-columns: 260px 1fr;
+    min-height: 100vh;
+  }
+
+  /* ================= SIDEBAR ================= */
+  aside.sidebar {
+    background: linear-gradient(180deg, #0a0e1a 0%, #131a2e 100%);
+    color: white;
+    padding: 24px 16px;
+    position: sticky;
+    top: 0;
+    height: 100vh;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+  }
+  .sidebar::-webkit-scrollbar { width: 6px; }
+  .sidebar::-webkit-scrollbar-thumb { background: rgba(255,255,255,.1); border-radius: 99px; }
+
+  .brand {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 0 8px 24px;
+    border-bottom: 1px solid rgba(255,255,255,.08);
+    margin-bottom: 16px;
+  }
+  .brand-mark {
+    width: 40px; height: 40px;
+    background: linear-gradient(135deg, var(--gold) 0%, var(--gold-2) 100%);
+    border-radius: 10px;
+    display: flex; align-items: center; justify-content: center;
+    color: var(--ink);
+    font-weight: 800;
+    font-size: 16px;
+    box-shadow: 0 4px 12px rgba(212,175,55,.3);
+  }
+  .brand-text .brand-title { font-weight: 700; font-size: 14px; letter-spacing: -0.01em; }
+  .brand-text .brand-sub { font-size: 11px; color: rgba(255,255,255,.5); margin-top: 1px; letter-spacing: 0.2px; }
+
+  .nav-label {
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 1.2px;
+    color: rgba(255,255,255,.35);
+    padding: 14px 12px 6px;
+    font-weight: 600;
+  }
+
+  .nav-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 10px 12px;
+    border-radius: 10px;
+    color: rgba(255,255,255,.7);
+    text-decoration: none;
+    font-size: 13.5px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.15s ease;
+    border: none;
+    background: none;
+    width: 100%;
+    text-align: left;
+    margin-bottom: 2px;
+  }
+  .nav-item:hover {
+    background: rgba(255,255,255,.05);
+    color: white;
+  }
+  .nav-item.active {
+    background: rgba(212,175,55,.12);
+    color: var(--gold);
+    font-weight: 600;
+  }
+  .nav-item.active .nav-icon { color: var(--gold); }
+  .nav-icon { width: 18px; flex: 0 0 18px; opacity: .9; }
+
+  .countdown-mini {
+    margin-top: auto;
+    padding: 16px;
+    background: rgba(255,255,255,.04);
+    border: 1px solid rgba(255,255,255,.08);
+    border-radius: 12px;
+  }
+  .countdown-label {
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 1.2px;
+    color: rgba(255,255,255,.5);
+    margin-bottom: 8px;
+    font-weight: 600;
+  }
+  .countdown-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 6px;
+    margin-bottom: 10px;
+  }
+  .cd-cell {
+    background: rgba(0,0,0,.2);
+    border-radius: 8px;
+    padding: 8px 4px;
+    text-align: center;
+  }
+  .cd-num { font-size: 18px; font-weight: 700; color: var(--gold); line-height: 1; }
+  .cd-unit { font-size: 9px; text-transform: uppercase; letter-spacing: 0.8px; color: rgba(255,255,255,.5); margin-top: 4px; }
+  .countdown-event { font-size: 11px; color: rgba(255,255,255,.6); line-height: 1.4; }
+  .countdown-event strong { color: white; font-weight: 600; }
+
+  /* ================= MAIN ================= */
+  main {
+    background: var(--paper);
+    overflow-x: hidden;
+  }
+  .topbar {
+    background: white;
+    border-bottom: 1px solid var(--line);
+    padding: 16px 32px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    position: sticky;
+    top: 0;
+    z-index: 5;
+  }
+  .breadcrumb { font-size: 13px; color: var(--text-soft); }
+  .breadcrumb strong { color: var(--text); font-weight: 600; }
+  .topbar-actions { display: flex; gap: 8px; align-items: center; }
+
+  .content { padding: 32px; max-width: 1480px; margin: 0 auto; }
+
+  .panel { display: none; }
+  .panel.active { display: block; animation: slideIn 0.3s cubic-bezier(.2,.8,.2,1); }
+  @keyframes slideIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
+
+  .page-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    margin-bottom: 28px;
+    gap: 16px;
+    flex-wrap: wrap;
+  }
+  .page-title {
+    font-size: 28px;
+    font-weight: 700;
+    color: var(--text);
+    letter-spacing: -0.025em;
+  }
+  .page-subtitle {
+    font-size: 14px;
+    color: var(--text-soft);
+    margin-top: 4px;
+  }
+
+  /* ================= HERO ================= */
+  .hero {
+    background: linear-gradient(135deg, #0a0e1a 0%, #131a2e 50%, #1c2541 100%);
+    color: white;
+    border-radius: var(--radius-xl);
+    padding: 36px 40px;
+    margin-bottom: 24px;
+    position: relative;
+    overflow: hidden;
+  }
+  .hero::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background:
+      radial-gradient(800px 400px at 90% 0%, rgba(212,175,55,.18), transparent 60%),
+      radial-gradient(600px 300px at 0% 100%, rgba(79,70,229,.12), transparent 60%);
+    pointer-events: none;
+  }
+  .hero-content { position: relative; }
+  .hero-tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: rgba(212,175,55,.15);
+    border: 1px solid rgba(212,175,55,.3);
+    color: var(--gold);
+    padding: 5px 12px;
+    border-radius: 99px;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+    margin-bottom: 14px;
+  }
+  .hero-title { font-size: 36px; font-weight: 800; letter-spacing: -0.03em; line-height: 1.1; margin-bottom: 8px; }
+  .hero-subtitle { font-size: 15px; color: rgba(255,255,255,.7); max-width: 560px; }
+  .hero-meta { display: flex; gap: 24px; margin-top: 24px; flex-wrap: wrap; }
+  .hero-meta-item { display: flex; align-items: center; gap: 8px; font-size: 13px; color: rgba(255,255,255,.85); }
+  .hero-meta-icon { color: var(--gold); }
+
+  /* ================= STAT CARDS ================= */
+  .stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    gap: 16px;
+    margin-bottom: 24px;
+  }
+  .stat {
+    background: white;
+    border: 1px solid var(--line);
+    border-radius: var(--radius-lg);
+    padding: 22px;
+    transition: all 0.2s;
+    position: relative;
+    overflow: hidden;
+  }
+  .stat:hover { box-shadow: var(--shadow-md); transform: translateY(-1px); }
+  .stat-top { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 14px; }
+  .stat-icon {
+    width: 38px; height: 38px;
+    border-radius: 10px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 18px;
+  }
+  .stat-icon.gold { background: var(--gold-soft); color: var(--gold-2); }
+  .stat-icon.emerald { background: var(--emerald-soft); color: var(--emerald); }
+  .stat-icon.amber { background: var(--amber-soft); color: var(--amber); }
+  .stat-icon.rose { background: var(--rose-soft); color: var(--rose); }
+  .stat-icon.indigo { background: var(--indigo-soft); color: var(--indigo); }
+  .stat-trend {
+    font-size: 11px;
+    font-weight: 600;
+    padding: 3px 8px;
+    border-radius: 99px;
+  }
+  .stat-trend.up { background: var(--emerald-soft); color: var(--emerald); }
+  .stat-trend.down { background: var(--rose-soft); color: var(--rose); }
+  .stat-trend.neutral { background: var(--paper-2); color: var(--text-soft); }
+  .stat-label { font-size: 12.5px; color: var(--text-soft); font-weight: 500; }
+  .stat-value { font-size: 28px; font-weight: 700; color: var(--text); margin-top: 4px; letter-spacing: -0.02em; line-height: 1.1; }
+  .stat-sub { font-size: 12px; color: var(--text-muted); margin-top: 6px; }
+
+  /* ================= CARDS ================= */
+  .card {
+    background: white;
+    border: 1px solid var(--line);
+    border-radius: var(--radius-lg);
+    padding: 24px;
+    margin-bottom: 16px;
+  }
+  .card-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 18px; }
+  .card-title { font-size: 15px; font-weight: 700; color: var(--text); letter-spacing: -0.01em; }
+  .card-sub { font-size: 12.5px; color: var(--text-soft); margin-top: 2px; }
+
+  /* ================= GRID ================= */
+  .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  .grid-3 { display: grid; grid-template-columns: 2fr 1fr; gap: 16px; }
+  @media (max-width: 1024px) { .grid-2, .grid-3 { grid-template-columns: 1fr; } }
+
+  /* ================= BUTTONS ================= */
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    padding: 9px 16px;
+    border-radius: 10px;
+    border: 1px solid transparent;
+    cursor: pointer;
+    font-size: 13px;
+    font-weight: 600;
+    letter-spacing: -0.005em;
+    transition: all 0.15s;
+    white-space: nowrap;
+  }
+  .btn-primary {
+    background: var(--ink);
+    color: white;
+  }
+  .btn-primary:hover { background: var(--ink-2); transform: translateY(-1px); box-shadow: var(--shadow-md); }
+  .btn-gold {
+    background: linear-gradient(135deg, var(--gold) 0%, var(--gold-2) 100%);
+    color: var(--ink);
+    box-shadow: 0 2px 6px rgba(212,175,55,.3);
+  }
+  .btn-gold:hover { transform: translateY(-1px); box-shadow: 0 6px 16px rgba(212,175,55,.4); }
+  .btn-ghost {
+    background: white;
+    color: var(--text);
+    border-color: var(--line);
+  }
+  .btn-ghost:hover { background: var(--paper-2); border-color: var(--text-muted); }
+  .btn-danger { background: white; color: var(--rose); border-color: var(--rose-soft); }
+  .btn-danger:hover { background: var(--rose-soft); }
+  .btn-sm { padding: 6px 11px; font-size: 12px; }
+  .btn-icon {
+    padding: 6px;
+    background: transparent;
+    color: var(--text-muted);
+    border: 1px solid transparent;
+    border-radius: 8px;
+    cursor: pointer;
+    width: 30px; height: 30px;
+    display: inline-flex; align-items: center; justify-content: center;
+  }
+  .btn-icon:hover { background: var(--paper-2); color: var(--text); }
+  .btn-icon.danger:hover { background: var(--rose-soft); color: var(--rose); }
+
+  /* ================= TABLES ================= */
+  .table-wrap {
+    background: white;
+    border: 1px solid var(--line);
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+  }
+  table { width: 100%; border-collapse: collapse; }
+  thead { background: var(--paper-2); }
+  th {
+    text-align: left;
+    padding: 12px 18px;
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.7px;
+    color: var(--text-soft);
+    font-weight: 600;
+    border-bottom: 1px solid var(--line);
+    white-space: nowrap;
+  }
+  td {
+    padding: 14px 18px;
+    border-bottom: 1px solid var(--line-2);
+    font-size: 13.5px;
+    vertical-align: middle;
+  }
+  tr:last-child td { border-bottom: none; }
+  tbody tr { transition: background .12s; }
+  tbody tr:hover td { background: #fafbfc; }
+  td .actions { display: flex; gap: 2px; justify-content: flex-end; }
+  .table-scroll { overflow-x: auto; }
+
+  /* ================= BADGES ================= */
+  .pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 3px 10px;
+    border-radius: 99px;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.1px;
+  }
+  .pill-emerald { background: var(--emerald-soft); color: var(--emerald); }
+  .pill-amber { background: var(--amber-soft); color: var(--amber); }
+  .pill-rose { background: var(--rose-soft); color: var(--rose); }
+  .pill-indigo { background: var(--indigo-soft); color: var(--indigo); }
+  .pill-gold { background: var(--gold-soft); color: var(--gold-2); }
+  .pill-muted { background: var(--paper-2); color: var(--text-soft); }
+  .pill-dot { width: 6px; height: 6px; border-radius: 50%; background: currentColor; }
+
+  /* ================= FORMS ================= */
+  .form-group { margin-bottom: 14px; }
+  .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+  .form-row-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 14px; }
+  label {
+    display: block;
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--text);
+    margin-bottom: 6px;
+  }
+  label.optional::after {
+    content: ' (optionnel)';
+    font-weight: 400;
+    color: var(--text-muted);
+    font-size: 11px;
+  }
+  input, select, textarea {
+    width: 100%;
+    padding: 10px 12px;
+    border: 1px solid var(--line);
+    border-radius: 9px;
+    font-size: 13.5px;
+    font-family: inherit;
+    background: white;
+    color: var(--text);
+    transition: all 0.15s;
+  }
+  input:focus, select:focus, textarea:focus {
+    outline: none;
+    border-color: var(--ink);
+    box-shadow: 0 0 0 3px rgba(15,23,42,.08);
+  }
+  textarea { resize: vertical; min-height: 80px; }
+  .input-group { position: relative; }
+  .input-prefix {
+    position: absolute; left: 12px; top: 50%; transform: translateY(-50%);
+    color: var(--text-muted); font-size: 13px; font-weight: 500;
+  }
+  .input-prefix + input { padding-left: 28px; }
+
+  /* ================= TOOLBAR ================= */
+  .toolbar {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 16px;
+    align-items: center;
+    flex-wrap: wrap;
+  }
+  .search-box {
+    position: relative;
+    flex: 1;
+    min-width: 240px;
+    max-width: 360px;
+  }
+  .search-box input {
+    padding-left: 36px;
+    background: white;
+  }
+  .search-box::before {
+    content: '⌕';
+    position: absolute;
+    left: 12px; top: 50%; transform: translateY(-50%);
+    color: var(--text-muted);
+    font-size: 16px;
+    pointer-events: none;
+  }
+  .toolbar select { width: auto; min-width: 140px; }
+
+  /* ================= MODAL ================= */
+  .modal-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(15,23,42,.55);
+    z-index: 100;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    backdrop-filter: blur(4px);
+    animation: fadeIn 0.2s;
+  }
+  @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+  .modal-overlay.show { display: flex; }
+  .modal {
+    background: white;
+    border-radius: var(--radius-xl);
+    width: 100%;
+    max-width: 620px;
+    max-height: 90vh;
+    overflow-y: auto;
+    box-shadow: var(--shadow-xl);
+    animation: slideIn 0.25s;
+  }
+  .modal-header {
+    padding: 22px 26px 18px;
+    border-bottom: 1px solid var(--line-2);
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+  }
+  .modal-title { font-size: 18px; font-weight: 700; color: var(--text); letter-spacing: -0.015em; }
+  .modal-sub { font-size: 13px; color: var(--text-soft); margin-top: 2px; }
+  .modal-body { padding: 22px 26px; }
+  .modal-footer {
+    padding: 16px 26px;
+    border-top: 1px solid var(--line-2);
+    display: flex;
+    justify-content: flex-end;
+    gap: 8px;
+    background: var(--paper-2);
+    border-radius: 0 0 var(--radius-xl) var(--radius-xl);
+  }
+
+  /* ================= PROGRESS ================= */
+  .progress {
+    height: 8px;
+    background: var(--line-2);
+    border-radius: 99px;
+    overflow: hidden;
+    position: relative;
+  }
+  .progress-bar {
+    height: 100%;
+    background: linear-gradient(90deg, var(--gold) 0%, var(--gold-2) 100%);
+    border-radius: 99px;
+    transition: width 0.4s cubic-bezier(.2,.8,.2,1);
+  }
+  .progress-bar.emerald { background: linear-gradient(90deg, #10b981 0%, var(--emerald) 100%); }
+  .progress-bar.amber { background: linear-gradient(90deg, #f59e0b 0%, var(--amber) 100%); }
+  .progress-bar.rose { background: linear-gradient(90deg, #f87171 0%, var(--rose) 100%); }
+  .progress-bar.indigo { background: linear-gradient(90deg, #818cf8 0%, var(--indigo) 100%); }
+
+  /* ================= CHECKLIST ================= */
+  .check-row {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 14px 18px;
+    background: white;
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    margin-bottom: 8px;
+    transition: all 0.15s;
+  }
+  .check-row:hover { border-color: var(--text-muted); box-shadow: var(--shadow-sm); }
+  .check-row.done { opacity: 0.55; background: var(--paper-2); }
+  .check-row.done .task-title { text-decoration: line-through; }
+  .check-row input[type="checkbox"] {
+    width: 20px; height: 20px;
+    cursor: pointer;
+    flex: 0 0 auto;
+    accent-color: var(--ink);
+  }
+  .task-info { flex: 1; min-width: 0; }
+  .task-title { font-weight: 600; font-size: 13.5px; color: var(--text); }
+  .task-meta { font-size: 11.5px; color: var(--text-muted); margin-top: 4px; display: flex; gap: 12px; flex-wrap: wrap; align-items: center; }
+  .task-overdue { color: var(--rose); font-weight: 600; }
+  .task-soon { color: var(--amber); font-weight: 600; }
+
+  /* ================= ALERTS ================= */
+  .alert {
+    padding: 14px 18px;
+    border-radius: var(--radius);
+    margin-bottom: 12px;
+    font-size: 13px;
+    display: flex;
+    gap: 12px;
+    align-items: flex-start;
+    border: 1px solid;
+  }
+  .alert-icon { font-size: 16px; flex: 0 0 auto; line-height: 1.2; }
+  .alert-amber { background: var(--amber-soft); color: #78350f; border-color: #fde68a; }
+  .alert-rose { background: var(--rose-soft); color: #7f1d1d; border-color: #fecaca; }
+  .alert-indigo { background: var(--indigo-soft); color: #312e81; border-color: #c7d2fe; }
+  .alert-emerald { background: var(--emerald-soft); color: #064e3b; border-color: #a7f3d0; }
+
+  /* ================= EMPTY STATE ================= */
+  .empty {
+    text-align: center;
+    padding: 48px 24px;
+    color: var(--text-muted);
+  }
+  .empty-icon {
+    width: 56px; height: 56px;
+    margin: 0 auto 12px;
+    background: var(--paper-2);
+    border-radius: 14px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 24px;
+    opacity: .6;
+  }
+  .empty-title { font-size: 14px; font-weight: 600; color: var(--text-soft); margin-bottom: 4px; }
+  .empty-text { font-size: 12.5px; }
+
+  /* ================= CHARTS ================= */
+  .donut-wrap {
+    display: flex;
+    align-items: center;
+    gap: 28px;
+  }
+  .donut-svg { flex-shrink: 0; }
+  .legend { flex: 1; }
+  .legend-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 8px 0;
+    border-bottom: 1px solid var(--line-2);
+    font-size: 12.5px;
+  }
+  .legend-item:last-child { border-bottom: none; }
+  .legend-dot { width: 10px; height: 10px; border-radius: 3px; flex: 0 0 auto; }
+  .legend-label { flex: 1; color: var(--text); font-weight: 500; }
+  .legend-value { color: var(--text); font-weight: 700; }
+  .legend-pct { color: var(--text-muted); font-size: 11px; margin-left: 6px; }
+
+  .bar-list { display: flex; flex-direction: column; gap: 14px; }
+  .bar-item {
+    display: grid;
+    grid-template-columns: 160px 1fr auto;
+    gap: 14px;
+    align-items: center;
+  }
+  .bar-name { font-size: 12.5px; font-weight: 500; color: var(--text); }
+  .bar-track { height: 22px; background: var(--paper-2); border-radius: 6px; overflow: hidden; position: relative; }
+  .bar-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--ink-3) 0%, var(--ink-2) 100%);
+    border-radius: 6px;
+    display: flex; align-items: center; padding: 0 10px;
+    color: white; font-size: 11px; font-weight: 600;
+    transition: width 0.4s cubic-bezier(.2,.8,.2,1);
+  }
+  .bar-amount { font-size: 13px; font-weight: 700; color: var(--text); white-space: nowrap; }
+
+  /* ================= BADGES PRINT ================= */
+  .badge-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 8px;
+    margin-top: 16px;
+  }
+  .badge-print {
+    border: 2px solid var(--ink);
+    border-radius: 12px;
+    padding: 16px 18px;
+    page-break-inside: avoid;
+    background: white;
+    aspect-ratio: 90 / 55;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    position: relative;
+    overflow: hidden;
+  }
+  .badge-print::before {
+    content: '';
+    position: absolute;
+    top: 0; right: 0;
+    width: 80px; height: 80px;
+    background: linear-gradient(135deg, var(--gold) 0%, var(--gold-2) 100%);
+    border-radius: 0 12px 0 100%;
+    opacity: .15;
+  }
+  .badge-event { font-size: 9px; color: var(--gold-2); font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase; }
+  .badge-name { font-size: 22px; font-weight: 700; color: var(--ink); line-height: 1.1; letter-spacing: -0.02em; }
+  .badge-org { font-size: 12px; color: var(--text-soft); margin-top: 2px; font-weight: 500; }
+  .badge-cat {
+    display: inline-block;
+    padding: 3px 10px;
+    border-radius: 99px;
+    background: var(--ink);
+    color: var(--gold);
+    font-size: 9px;
+    font-weight: 700;
+    letter-spacing: 1.2px;
+    text-transform: uppercase;
+    align-self: flex-start;
+  }
+
+  /* ================= TOAST ================= */
+  .toast {
+    position: fixed;
+    bottom: 24px;
+    right: 24px;
+    background: var(--ink);
+    color: white;
+    padding: 12px 18px;
+    border-radius: 10px;
+    box-shadow: var(--shadow-xl);
+    z-index: 1000;
+    font-weight: 600;
+    font-size: 13px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    animation: slideInRight 0.25s;
+  }
+  @keyframes slideInRight { from { opacity: 0; transform: translateX(20px); } to { opacity: 1; transform: none; } }
+
+  /* ================= PRINT ================= */
+  @media print {
+    aside.sidebar, .topbar, .toolbar, .page-header .btn, .actions, .btn { display: none !important; }
+    .app { grid-template-columns: 1fr; }
+    main { padding: 0; }
+    .panel { display: block !important; }
+    .badge-grid { grid-template-columns: repeat(2, 1fr); page-break-inside: avoid; }
+    .card { page-break-inside: avoid; }
+  }
+
+  /* ================= MOBILE ================= */
+  @media (max-width: 900px) {
+    .app { grid-template-columns: 1fr; }
+    aside.sidebar {
+      position: fixed;
+      top: 0; left: 0;
+      width: 260px;
+      transform: translateX(-100%);
+      transition: transform 0.3s;
+      z-index: 50;
+    }
+    aside.sidebar.open { transform: none; }
+    .menu-btn { display: inline-flex !important; }
+    .form-row, .form-row-3 { grid-template-columns: 1fr; }
+    .content { padding: 20px; }
+    .topbar { padding: 14px 20px; }
+    .hero { padding: 24px; }
+    .hero-title { font-size: 26px; }
+    .donut-wrap { flex-direction: column; align-items: stretch; }
+    .bar-item { grid-template-columns: 100px 1fr auto; }
+  }
+  .menu-btn { display: none; }
+</style>
+</head>
+<body>
+
+<div class="app">
+
+  <!-- ============ SIDEBAR ============ -->
+  <aside class="sidebar" id="sidebar">
+    <div class="brand">
+      <div class="brand-mark">QA</div>
+      <div class="brand-text">
+        <div class="brand-title">QVEMA Amplify</div>
+        <div class="brand-sub">Event OS · 2026</div>
+      </div>
+    </div>
+
+    <div class="nav-label">Pilotage</div>
+    <button class="nav-item active" data-tab="dashboard"><span class="nav-icon">▣</span><span>Tableau de bord</span></button>
+    <button class="nav-item" data-tab="planning"><span class="nav-icon">◷</span><span>Rétroplanning</span></button>
+
+    <div class="nav-label">Gestion</div>
+    <button class="nav-item" data-tab="suppliers"><span class="nav-icon">◊</span><span>Fournisseurs</span></button>
+    <button class="nav-item" data-tab="budget"><span class="nav-icon">€</span><span>Budget</span></button>
+
+    <div class="nav-label">Audience</div>
+    <button class="nav-item" data-tab="guests"><span class="nav-icon">◉</span><span>Invités</span></button>
+    <button class="nav-item" data-tab="invitations"><span class="nav-icon">✉</span><span>Invitations</span></button>
+
+    <div class="nav-label">Jour J</div>
+    <button class="nav-item" data-tab="logistics"><span class="nav-icon">◆</span><span>Logistique</span></button>
+
+    <div class="nav-label">Système</div>
+    <button class="nav-item" data-tab="data"><span class="nav-icon">⚙</span><span>Données</span></button>
+
+    <div class="countdown-mini">
+      <div class="countdown-label">Compte à rebours</div>
+      <div class="countdown-grid" id="countdown"></div>
+      <div class="countdown-event"><strong>Jeudi 4 juin 2026</strong> · 19h00<br>Palais Brongniart, Paris</div>
+    </div>
+  </aside>
+
+  <!-- ============ MAIN ============ -->
+  <main>
+    <div class="topbar">
+      <div style="display: flex; align-items: center; gap: 12px;">
+        <button class="btn btn-ghost btn-sm menu-btn" onclick="document.getElementById('sidebar').classList.toggle('open')">☰</button>
+        <div class="breadcrumb">
+          QVEMA Amplify · <strong id="breadcrumb-current">Tableau de bord</strong>
+        </div>
+      </div>
+      <div class="topbar-actions">
+        <button class="btn btn-ghost btn-sm" onclick="exportAll()">↓ Sauvegarder</button>
+      </div>
+    </div>
+
+    <div class="content">
+
+      <!-- =========== DASHBOARD =========== -->
+      <section class="panel active" id="panel-dashboard">
+        <div class="hero">
+          <div class="hero-content">
+            <div class="hero-tag"><span style="width:6px;height:6px;border-radius:50%;background:var(--gold);"></span> Lancement officiel</div>
+            <h1 class="hero-title serif">Qui Veut Être Mon Associé Amplify</h1>
+            <p class="hero-subtitle">Bienvenue dans votre cockpit de gestion. Toutes les informations clés de l'événement, en temps réel.</p>
+            <div class="hero-meta">
+              <div class="hero-meta-item"><span class="hero-meta-icon">◷</span> 4 juin 2026 — 19h00</div>
+              <div class="hero-meta-item"><span class="hero-meta-icon">◉</span> Palais Brongniart</div>
+              <div class="hero-meta-item"><span class="hero-meta-icon">◊</span> 16 Place de la Bourse, 75002 Paris</div>
+            </div>
+          </div>
+        </div>
+
+        <div id="alerts-container"></div>
+
+        <div class="stats-grid" id="dashboard-stats"></div>
+
+        <div class="grid-2">
+          <div class="card">
+            <div class="card-header">
+              <div>
+                <div class="card-title">Statut RSVP</div>
+                <div class="card-sub">Répartition des réponses invités</div>
+              </div>
+            </div>
+            <div id="rsvp-summary"></div>
+          </div>
+          <div class="card">
+            <div class="card-header">
+              <div>
+                <div class="card-title">Paiements fournisseurs</div>
+                <div class="card-sub">Avancement des règlements</div>
+              </div>
+            </div>
+            <div id="payment-summary"></div>
+          </div>
+        </div>
+
+        <div class="grid-3" style="margin-top: 16px;">
+          <div class="card">
+            <div class="card-header">
+              <div>
+                <div class="card-title">Budget par catégorie</div>
+                <div class="card-sub">Vue d'ensemble des engagements</div>
+              </div>
+            </div>
+            <div id="budget-donut"></div>
+          </div>
+          <div class="card">
+            <div class="card-header">
+              <div>
+                <div class="card-title">Actions urgentes</div>
+                <div class="card-sub">Top 5 priorités</div>
+              </div>
+            </div>
+            <div id="urgent-tasks"></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- =========== SUPPLIERS =========== -->
+      <section class="panel" id="panel-suppliers">
+        <div class="page-header">
+          <div>
+            <h1 class="page-title">Fournisseurs</h1>
+            <p class="page-subtitle">Devis, acomptes, soldes — tous vos prestataires en un coup d'œil</p>
+          </div>
+          <button class="btn btn-gold" onclick="openSupplierModal()">+ Nouveau fournisseur</button>
+        </div>
+
+        <div class="stats-grid" id="suppliers-stats"></div>
+
+        <div class="toolbar">
+          <div class="search-box"><input id="supplier-search" placeholder="Rechercher un fournisseur, contact..." oninput="renderSuppliers()"></div>
+          <select id="supplier-filter" onchange="renderSuppliers()">
+            <option value="">Toutes catégories</option>
+          </select>
+          <select id="supplier-status-filter" onchange="renderSuppliers()">
+            <option value="">Tous statuts</option>
+            <option value="En cours">En cours</option>
+            <option value="Devis reçu">Devis reçu</option>
+            <option value="Devis signé">Devis signé</option>
+            <option value="Acompte versé">Acompte versé</option>
+            <option value="Soldé">Soldé</option>
+          </select>
+        </div>
+
+        <div class="table-wrap">
+          <div class="table-scroll">
+            <table>
+              <thead>
+                <tr>
+                  <th>Catégorie</th>
+                  <th>Prestataire</th>
+                  <th>Contact</th>
+                  <th>Description</th>
+                  <th style="text-align: right;">HT</th>
+                  <th>TVA</th>
+                  <th style="text-align: right;">TTC</th>
+                  <th style="text-align: right;">Acompte</th>
+                  <th style="text-align: right;">Solde</th>
+                  <th>Statut</th>
+                  <th></th>
+                </tr>
+              </thead>
+              <tbody id="suppliers-tbody"></tbody>
+              <tfoot id="suppliers-tfoot"></tfoot>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- =========== GUESTS =========== -->
+      <section class="panel" id="panel-guests">
+        <div class="page-header">
+          <div>
+            <h1 class="page-title">Invités</h1>
+            <p class="page-subtitle">Gestion de votre liste de contacts et suivi RSVP</p>
+          </div>
+          <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+            <button class="btn btn-ghost btn-sm" onclick="document.getElementById('csv-import').click()">↑ Importer CSV</button>
+            <input type="file" id="csv-import" accept=".csv" style="display:none" onchange="importGuestsCSV(event)">
+            <button class="btn btn-ghost btn-sm" onclick="exportGuestsCSV()">↓ Exporter CSV</button>
+            <button class="btn btn-gold" onclick="openGuestModal()">+ Nouvel invité</button>
+          </div>
+        </div>
+
+        <div class="stats-grid" id="guests-stats"></div>
+
+        <div class="toolbar">
+          <div class="search-box"><input id="guest-search" placeholder="Rechercher (nom, email, organisation)..." oninput="renderGuests()"></div>
+          <select id="guest-category-filter" onchange="renderGuests()">
+            <option value="">Toutes catégories</option>
+            <option value="VIP">VIP</option>
+            <option value="Investisseur">Investisseur</option>
+            <option value="Candidat">Candidat</option>
+            <option value="Presse">Presse</option>
+            <option value="Partenaire">Partenaire</option>
+            <option value="Équipe">Équipe</option>
+            <option value="Autre">Autre</option>
+          </select>
+          <select id="guest-rsvp-filter" onchange="renderGuests()">
+            <option value="">Tous RSVP</option>
+            <option value="en attente">En attente</option>
+            <option value="confirmé">Confirmé</option>
+            <option value="décliné">Décliné</option>
+            <option value="relancer">À relancer</option>
+          </select>
+        </div>
+
+        <div class="table-wrap">
+          <div class="table-scroll">
+            <table>
+              <thead>
+                <tr>
+                  <th><input type="checkbox" onchange="toggleAllGuests(this)" id="guest-select-all"></th>
+                  <th>Nom</th>
+                  <th>Organisation</th>
+                  <th>Email</th>
+                  <th>Catégorie</th>
+                  <th>+1</th>
+                  <th>RSVP</th>
+                  <th></th>
+                </tr>
+              </thead>
+              <tbody id="guests-tbody"></tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- =========== INVITATIONS =========== -->
+      <section class="panel" id="panel-invitations">
+        <div class="page-header">
+          <div>
+            <h1 class="page-title">Invitations & RSVP</h1>
+            <p class="page-subtitle">Préparer, envoyer et suivre les retours des invités</p>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-header">
+            <div>
+              <div class="card-title">Modèle d'email</div>
+              <div class="card-sub">Variables : <code>{{prenom}}</code>, <code>{{nom}}</code>, <code>{{organisation}}</code>, <code>{{date}}</code>, <code>{{lieu}}</code>, <code>{{horaire}}</code></div>
+            </div>
+          </div>
+          <div class="form-group">
+            <label>Objet</label>
+            <input id="invite-subject">
+          </div>
+          <div class="form-group">
+            <label>Corps du message</label>
+            <textarea id="invite-body" rows="11"></textarea>
+          </div>
+          <div style="display: flex; gap: 8px;">
+            <button class="btn btn-primary btn-sm" onclick="saveTemplate()">Enregistrer le modèle</button>
+            <button class="btn btn-ghost btn-sm" onclick="resetTemplate()">↻ Restaurer par défaut</button>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-header">
+            <div>
+              <div class="card-title">Envoi en masse</div>
+              <div class="card-sub">Génère des emails pré-remplis qui s'ouvrent dans votre client mail</div>
+            </div>
+          </div>
+          <div class="toolbar" style="margin-bottom: 0;">
+            <select id="bulk-target">
+              <option value="all">Tous les invités avec email</option>
+              <option value="not-sent">Non encore invités</option>
+              <option value="pending">RSVP en attente (relance)</option>
+            </select>
+            <button class="btn btn-gold" onclick="bulkInvite()">✉ Préparer les emails</button>
+          </div>
+          <div id="bulk-progress" style="margin-top: 12px;"></div>
+        </div>
+
+        <div class="card">
+          <div class="card-header">
+            <div>
+              <div class="card-title">Suivi des réponses</div>
+              <div class="card-sub">Avancement par étape</div>
+            </div>
+          </div>
+          <div id="rsvp-tracking"></div>
+        </div>
+      </section>
+
+      <!-- =========== BUDGET =========== -->
+      <section class="panel" id="panel-budget">
+        <div class="page-header">
+          <div>
+            <h1 class="page-title">Budget</h1>
+            <p class="page-subtitle">Suivi global des dépenses, échéances et alertes</p>
+          </div>
+          <button class="btn btn-ghost btn-sm" onclick="openBudgetCapModal()">⚙ Définir budget total</button>
+        </div>
+
+        <div class="stats-grid" id="budget-stats"></div>
+
+        <div class="grid-2">
+          <div class="card">
+            <div class="card-header">
+              <div>
+                <div class="card-title">Répartition par catégorie</div>
+                <div class="card-sub">% du budget total engagé</div>
+              </div>
+            </div>
+            <div id="budget-chart"></div>
+          </div>
+          <div class="card">
+            <div class="card-header">
+              <div>
+                <div class="card-title">Top fournisseurs</div>
+                <div class="card-sub">Par montant TTC</div>
+              </div>
+            </div>
+            <div id="top-suppliers"></div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-header">
+            <div>
+              <div class="card-title">Échéancier des paiements</div>
+              <div class="card-sub">Soldes à régler</div>
+            </div>
+          </div>
+          <div id="payment-timeline"></div>
+        </div>
+      </section>
+
+      <!-- =========== PLANNING =========== -->
+      <section class="panel" id="panel-planning">
+        <div class="page-header">
+          <div>
+            <h1 class="page-title">Rétroplanning</h1>
+            <p class="page-subtitle">Toutes les tâches d'ici le jour J</p>
+          </div>
+          <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+            <button class="btn btn-ghost btn-sm" onclick="loadDefaultTasks()">📋 Charger checklist type</button>
+            <button class="btn btn-gold" onclick="openTaskModal()">+ Nouvelle tâche</button>
+          </div>
+        </div>
+
+        <div class="stats-grid" id="tasks-stats"></div>
+
+        <div class="toolbar">
+          <select id="task-filter" onchange="renderTasks()">
+            <option value="all">Toutes les tâches</option>
+            <option value="todo">À faire</option>
+            <option value="done">Terminées</option>
+            <option value="overdue">En retard</option>
+            <option value="soon">Bientôt (7j)</option>
+          </select>
+          <select id="task-category-filter" onchange="renderTasks()">
+            <option value="">Toutes catégories</option>
+            <option value="Logistique">Logistique</option>
+            <option value="Communication">Communication</option>
+            <option value="Invités">Invités</option>
+            <option value="Fournisseurs">Fournisseurs</option>
+            <option value="Production">Production</option>
+            <option value="Administratif">Administratif</option>
+            <option value="Jour J">Jour J</option>
+          </select>
+        </div>
+
+        <div id="tasks-list"></div>
+      </section>
+
+      <!-- =========== LOGISTICS =========== -->
+      <section class="panel" id="panel-logistics">
+        <div class="page-header">
+          <div>
+            <h1 class="page-title">Logistique jour J</h1>
+            <p class="page-subtitle">Émargement, badges, accueil</p>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-header">
+            <div>
+              <div class="card-title">Émargement / Check-in</div>
+              <div class="card-sub">Cochez les invités à leur arrivée</div>
+            </div>
+            <div id="checkin-stats" style="font-size: 13px; color: var(--text-soft);"></div>
+          </div>
+          <div class="toolbar">
+            <div class="search-box"><input id="checkin-search" placeholder="Rechercher pour pointer..." oninput="renderCheckin()"></div>
+            <select id="checkin-filter" onchange="renderCheckin()">
+              <option value="all">Tous (confirmés)</option>
+              <option value="checked">Présents</option>
+              <option value="not-checked">À l'accueil</option>
+            </select>
+            <button class="btn btn-ghost btn-sm" onclick="window.print()">🖨 Imprimer</button>
+          </div>
+          <div class="table-wrap">
+            <div class="table-scroll">
+              <table>
+                <thead>
+                  <tr><th>Présent</th><th>Nom</th><th>Organisation</th><th>+1</th><th>Heure</th><th>Notes</th></tr>
+                </thead>
+                <tbody id="checkin-tbody"></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-header">
+            <div>
+              <div class="card-title">Badges nominatifs</div>
+              <div class="card-sub">Génère des badges imprimables (2 par ligne, A4)</div>
+            </div>
+            <button class="btn btn-primary btn-sm" onclick="generateBadges()">Générer les badges</button>
+          </div>
+          <div id="badge-print-area"></div>
+        </div>
+      </section>
+
+      <!-- =========== DATA =========== -->
+      <section class="panel" id="panel-data">
+        <div class="page-header">
+          <div>
+            <h1 class="page-title">Données & sauvegardes</h1>
+            <p class="page-subtitle">Vos données sont stockées localement dans votre navigateur</p>
+          </div>
+        </div>
+
+        <div class="alert alert-indigo">
+          <span class="alert-icon">ⓘ</span>
+          <div>
+            <strong>Sauvegardez régulièrement.</strong> Les données vivent dans le navigateur (localStorage). Si vous changez d'ordinateur, videz le cache, ou utilisez la navigation privée, elles seront perdues. Téléchargez un fichier JSON pour les conserver.
+          </div>
+        </div>
+
+        <div class="grid-2">
+          <div class="card">
+            <div class="card-header">
+              <div>
+                <div class="card-title">Sauvegarde complète</div>
+                <div class="card-sub">Télécharge un fichier JSON avec toutes vos données</div>
+              </div>
+            </div>
+            <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+              <button class="btn btn-primary btn-sm" onclick="exportAll()">↓ Télécharger sauvegarde</button>
+              <button class="btn btn-ghost btn-sm" onclick="document.getElementById('import-file').click()">↑ Restaurer une sauvegarde</button>
+              <input type="file" id="import-file" accept=".json" style="display:none" onchange="importAll(event)">
+            </div>
+          </div>
+          <div class="card">
+            <div class="card-header">
+              <div>
+                <div class="card-title">État des données</div>
+              </div>
+            </div>
+            <div id="data-stats"></div>
+          </div>
+        </div>
+
+        <div class="card" style="border-color: var(--rose-soft);">
+          <div class="card-header">
+            <div>
+              <div class="card-title" style="color: var(--rose);">Zone dangereuse</div>
+              <div class="card-sub">Action irréversible</div>
+            </div>
+          </div>
+          <button class="btn btn-danger btn-sm" onclick="resetAll()">🗑 Tout réinitialiser</button>
+        </div>
+      </section>
+
+    </div>
+  </main>
+</div>
+
+<!-- ============ MODAL ============ -->
+<div class="modal-overlay" id="modal-overlay">
+  <div class="modal" id="modal-container">
+    <div class="modal-header">
+      <div>
+        <div class="modal-title" id="modal-title">Titre</div>
+        <div class="modal-sub" id="modal-sub"></div>
+      </div>
+      <button class="btn-icon" onclick="closeModal()">✕</button>
+    </div>
+    <div class="modal-body" id="modal-body"></div>
+    <div class="modal-footer" id="modal-footer"></div>
+  </div>
+</div>
+
+<script>
+// ====================================================================
+// QVEMA AMPLIFY · EVENT OS — v2
+// ====================================================================
+
+const EVENT_INFO = {
+  name: "Qui Veut Être Mon Associé Amplify",
+  date: "2026-06-04T19:00:00",
+  location: "Palais Brongniart",
+  address: "16 Place de la Bourse, 75002 Paris",
+  time: "19h00"
+};
+
+const STORAGE_KEY = 'qvema-amplify-data-v2';
+
+// Catégories fournisseurs (avec icônes/couleurs)
+const SUPPLIER_CATEGORIES = [
+  { name: "Lieu / Salle", icon: "🏛", color: "#0ea5e9" },
+  { name: "Technique (son/lumière/scène)", icon: "🎛", color: "#8b5cf6" },
+  { name: "Photo", icon: "📷", color: "#ec4899" },
+  { name: "Vidéo", icon: "🎬", color: "#f43f5e" },
+  { name: "Traiteur / Boissons", icon: "🍷", color: "#eab308" },
+  { name: "Décoration", icon: "🌿", color: "#22c55e" },
+  { name: "Sécurité", icon: "🛡", color: "#64748b" },
+  { name: "Animation", icon: "🎤", color: "#f97316" },
+  { name: "Communication", icon: "📢", color: "#06b6d4" },
+  { name: "Cadeaux", icon: "🎁", color: "#a855f7" },
+  { name: "Signalétique", icon: "🪧", color: "#84cc16" },
+  { name: "Transport", icon: "🚐", color: "#14b8a6" },
+  { name: "Autre", icon: "◊", color: "#94a3b8" }
+];
+
+const DEFAULT_TEMPLATE = {
+  subject: "Invitation – Lancement Qui Veut Être Mon Associé Amplify – 4 juin 2026",
+  body: `Bonjour {{prenom}},
+
+Nous avons le plaisir de vous convier au lancement officiel de Qui Veut Être Mon Associé Amplify, qui se tiendra le {{date}} à {{horaire}} au {{lieu}} (16 Place de la Bourse, 75002 Paris).
+
+Au programme :
+— Présentation du programme Amplify
+— Échanges avec investisseurs et entrepreneurs
+— Cocktail dînatoire
+
+Merci de bien vouloir confirmer votre présence par retour d'email avant le 25 mai 2026.
+
+Au plaisir de vous y retrouver,
+
+L'équipe QVEMA Amplify`
+};
+
+// Fournisseurs pré-chargés (depuis votre tableau)
+const PRELOADED_SUPPLIERS = [
+  { id: 'pre1', name: 'GL Events', category: 'Lieu / Salle', contact: 'Yanis DJAFARI', phone: '07 87 50 76 41', email: 'yanis.djafari@gl-events.com', status: 'Devis reçu', description: 'Prestation/coordination', ht: 4821.24, tva: 20, ttc: 5785.49, deposit: 0, dueDate: '', notes: '' },
+  { id: 'pre2', name: 'GL Events', category: 'Technique (son/lumière/scène)', contact: 'Jérémy DE CANEVA', phone: '06 07 17 65 55', email: 'jeremy.decaneva@gl-events.com', status: 'Devis reçu', description: 'Écran, sono', ht: 12537.07, tva: 20, ttc: 15044.48, deposit: 0, dueDate: '', notes: '' },
+  { id: 'pre3', name: 'BOOTH', category: 'Photo', contact: 'Rachel BENZAQUI', phone: '06 03 88 62 88', email: 'boothphotoparis@gmail.com', status: 'Devis reçu', description: 'Kiosk', ht: 1200, tva: 20, ttc: 1440, deposit: 0, dueDate: '', notes: '' },
+  { id: 'pre4', name: 'BOOTH', category: 'Photo', contact: 'Rachel BENZAQUI', phone: '06 03 88 62 88', email: 'boothphotoparis@gmail.com', status: 'Devis reçu', description: 'Neverseen', ht: 1040, tva: 20, ttc: 1248, deposit: 0, dueDate: '', notes: '' },
+  { id: 'pre5', name: 'BOOTH', category: 'Vidéo', contact: 'Rachel BENZAQUI', phone: '06 03 88 62 88', email: 'boothphotoparis@gmail.com', status: 'Devis reçu', description: 'Création contenu vidéo', ht: 680, tva: 20, ttc: 816, deposit: 0, dueDate: '', notes: '' },
+  { id: 'pre6', name: 'COOKIDICTION', category: 'Traiteur / Boissons', contact: 'Charlotte Zeitoun', phone: '06 25 11 22 36', email: '', status: 'Devis reçu', description: 'Food', ht: 1467.40, tva: 5.5, ttc: 1548.11, deposit: 0, dueDate: '', notes: '' },
+  { id: 'pre7', name: 'TIRAMISSERIE', category: 'Traiteur / Boissons', contact: 'Tracy Sadoun', phone: '06 10 91 31 76', email: 'contact@tiramisserie.com', status: 'Devis reçu', description: 'Food', ht: 300, tva: 5.5, ttc: 316.50, deposit: 0, dueDate: '', notes: '' },
+  { id: 'pre8', name: 'BAR EXCELLENCE', category: 'Traiteur / Boissons', contact: 'Michel', phone: '06 10 83 09 62', email: '', status: 'Devis reçu', description: 'Drink', ht: 2450, tva: 20, ttc: 2940, deposit: 0, dueDate: '', notes: '' },
+  { id: 'pre9', name: 'Agence Mikado', category: 'Cadeaux', contact: 'Marlene SARAZIN', phone: '06 45 73 20 29', email: 'marlene@agence-mikado.fr', status: 'Devis reçu', description: 'Cadeau', ht: 2256.25, tva: 20, ttc: 2707.50, deposit: 0, dueDate: '', notes: '' },
+  { id: 'pre10', name: 'EASYFLYER', category: 'Signalétique', contact: '', phone: '', email: '', status: 'En cours', description: '', ht: 0, tva: 20, ttc: 0, deposit: 0, dueDate: '', notes: '' }
+];
+
+const DEFAULT_DATA = {
+  suppliers: [],
+  guests: [],
+  tasks: [],
+  template: DEFAULT_TEMPLATE,
+  budgetCap: 0,
+  settings: { initialized: false }
+};
+
+const DEFAULT_TASKS = [
+  { title: "Confirmer la réservation Palais Brongniart", category: "Fournisseurs", dueDate: "2026-05-01", done: false, owner: "" },
+  { title: "Signer contrat traiteur", category: "Fournisseurs", dueDate: "2026-04-30", done: false, owner: "" },
+  { title: "Finaliser scénographie & décoration", category: "Production", dueDate: "2026-05-10", done: false, owner: "" },
+  { title: "Briefer prestataire AV (son, lumière, captation)", category: "Production", dueDate: "2026-05-15", done: false, owner: "" },
+  { title: "Envoyer save-the-date à la presse", category: "Communication", dueDate: "2026-04-20", done: false, owner: "" },
+  { title: "Envoi invitations VIP & investisseurs", category: "Invités", dueDate: "2026-05-05", done: false, owner: "" },
+  { title: "Envoi invitations grand public / partenaires", category: "Invités", dueDate: "2026-05-12", done: false, owner: "" },
+  { title: "Première relance RSVP", category: "Invités", dueDate: "2026-05-20", done: false, owner: "" },
+  { title: "Clôture liste invités définitive", category: "Invités", dueDate: "2026-05-28", done: false, owner: "" },
+  { title: "Préparer plan d'accueil & équipe hôtesses", category: "Logistique", dueDate: "2026-05-25", done: false, owner: "" },
+  { title: "Imprimer badges nominatifs", category: "Logistique", dueDate: "2026-06-01", done: false, owner: "" },
+  { title: "Briefer équipe sécurité (vigipirate)", category: "Logistique", dueDate: "2026-05-30", done: false, owner: "" },
+  { title: "Confirmer photographe & vidéaste", category: "Production", dueDate: "2026-05-15", done: false, owner: "" },
+  { title: "Préparer kit presse & communiqué", category: "Communication", dueDate: "2026-05-25", done: false, owner: "" },
+  { title: "Réseaux sociaux : teasing event", category: "Communication", dueDate: "2026-05-20", done: false, owner: "" },
+  { title: "Vérifier assurance événement", category: "Administratif", dueDate: "2026-05-10", done: false, owner: "" },
+  { title: "Déclaration SACEM si musique", category: "Administratif", dueDate: "2026-05-15", done: false, owner: "" },
+  { title: "Repérage technique sur site", category: "Production", dueDate: "2026-05-22", done: false, owner: "" },
+  { title: "Briefing équipe complète J-7", category: "Logistique", dueDate: "2026-05-28", done: false, owner: "" },
+  { title: "Vérification matériel jour J", category: "Jour J", dueDate: "2026-06-04", done: false, owner: "" },
+  { title: "Accueil des invités à partir de 18h30", category: "Jour J", dueDate: "2026-06-04", done: false, owner: "" },
+  { title: "Brief sécurité avant ouverture portes", category: "Jour J", dueDate: "2026-06-04", done: false, owner: "" },
+  { title: "Envoi remerciements post-event", category: "Communication", dueDate: "2026-06-06", done: false, owner: "" }
+];
+
+// ============ STATE ============
+let data = loadData();
+let editingItem = null;
+
+function loadData() {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if (!raw) {
+      const fresh = JSON.parse(JSON.stringify(DEFAULT_DATA));
+      fresh.suppliers = JSON.parse(JSON.stringify(PRELOADED_SUPPLIERS));
+      fresh.settings.initialized = true;
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(fresh));
+      return fresh;
+    }
+    const parsed = JSON.parse(raw);
+    return Object.assign({}, JSON.parse(JSON.stringify(DEFAULT_DATA)), parsed);
+  } catch (e) {
+    console.error("loadData error", e);
+    return JSON.parse(JSON.stringify(DEFAULT_DATA));
+  }
+}
+function saveData() { localStorage.setItem(STORAGE_KEY, JSON.stringify(data)); }
+function uid() { return Date.now().toString(36) + Math.random().toString(36).substr(2, 5); }
+
+// ============ FORMATTING ============
+function fmtMoney(n, decimals) {
+  decimals = decimals === undefined ? 0 : decimals;
+  return (Number(n)||0).toLocaleString('fr-FR', { style: 'currency', currency: 'EUR', minimumFractionDigits: decimals, maximumFractionDigits: decimals });
+}
+function fmtMoneyExact(n) { return fmtMoney(n, 2); }
+function fmtDate(d) {
+  if (!d) return '—';
+  return new Date(d).toLocaleDateString('fr-FR', { day: '2-digit', month: 'short', year: 'numeric' });
+}
+function fmtDateLong(d) {
+  if (!d) return '';
+  return new Date(d).toLocaleDateString('fr-FR', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
+}
+function escapeHtml(s) {
+  if (s == null) return '';
+  return String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'})[c]);
+}
+function getCategoryMeta(name) {
+  return SUPPLIER_CATEGORIES.find(c => c.name === name) || SUPPLIER_CATEGORIES.find(c => c.name === 'Autre');
+}
+
+// Populate category filter
+(function initSupplierFilter() {
+  const sel = document.getElementById('supplier-filter');
+  SUPPLIER_CATEGORIES.forEach(c => {
+    const opt = document.createElement('option');
+    opt.value = c.name;
+    opt.textContent = c.name;
+    sel.appendChild(opt);
+  });
+})();
+
+// ============ TABS ============
+const TAB_NAMES = {
+  dashboard: 'Tableau de bord',
+  suppliers: 'Fournisseurs',
+  guests: 'Invités',
+  invitations: 'Invitations',
+  budget: 'Budget',
+  planning: 'Rétroplanning',
+  logistics: 'Logistique',
+  data: 'Données'
+};
+document.querySelectorAll('.nav-item').forEach(btn => {
+  btn.addEventListener('click', () => {
+    const tab = btn.dataset.tab;
+    document.querySelectorAll('.nav-item').forEach(b => b.classList.remove('active'));
+    document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+    btn.classList.add('active');
+    document.getElementById('panel-' + tab).classList.add('active');
+    document.getElementById('breadcrumb-current').textContent = TAB_NAMES[tab];
+    document.getElementById('sidebar').classList.remove('open');
+    if (tab === 'dashboard') renderDashboard();
+    if (tab === 'suppliers') renderSuppliers();
+    if (tab === 'guests') renderGuests();
+    if (tab === 'invitations') renderInvitations();
+    if (tab === 'budget') renderBudget();
+    if (tab === 'planning') renderTasks();
+    if (tab === 'logistics') renderLogistics();
+    if (tab === 'data') renderDataPanel();
+  });
+});
+
+// ============ COUNTDOWN ============
+function updateCountdown() {
+  const now = new Date();
+  const eventDate = new Date(EVENT_INFO.date);
+  const diff = eventDate - now;
+  const el = document.getElementById('countdown');
+  if (diff <= 0) {
+    el.innerHTML = '<div class="cd-cell" style="grid-column: span 3;"><div class="cd-num">🎉</div><div class="cd-unit">Le grand jour</div></div>';
+    return;
+  }
+  const days = Math.floor(diff / 86400000);
+  const hours = Math.floor((diff % 86400000) / 3600000);
+  const minutes = Math.floor((diff % 3600000) / 60000);
+  el.innerHTML = `
+    <div class="cd-cell"><div class="cd-num">${days}</div><div class="cd-unit">jours</div></div>
+    <div class="cd-cell"><div class="cd-num">${hours}</div><div class="cd-unit">heures</div></div>
+    <div class="cd-cell"><div class="cd-num">${minutes}</div><div class="cd-unit">min</div></div>
+  `;
+}
+updateCountdown();
+setInterval(updateCountdown, 60000);
+
+// ====================================================================
+// DASHBOARD
+// ====================================================================
+function renderDashboard() {
+  const guestStats = computeGuestStats();
+  const supplierStats = computeSupplierStats();
+  const taskStats = computeTaskStats();
+
+  document.getElementById('dashboard-stats').innerHTML = `
+    <div class="stat">
+      <div class="stat-top">
+        <div class="stat-icon emerald">◉</div>
+        <span class="stat-trend up">${guestStats.confirmed + guestStats.plusOnes} attendus</span>
+      </div>
+      <div class="stat-label">Invités confirmés</div>
+      <div class="stat-value">${guestStats.confirmed}<span style="font-size: 16px; color: var(--text-muted); font-weight: 500;"> / ${guestStats.total}</span></div>
+      <div class="stat-sub">${guestStats.plusOnes} accompagnant(s) • ${guestStats.pending} en attente</div>
+    </div>
+    <div class="stat">
+      <div class="stat-top">
+        <div class="stat-icon gold">◊</div>
+        <span class="stat-trend neutral">${supplierStats.count} prestataires</span>
+      </div>
+      <div class="stat-label">Budget engagé (TTC)</div>
+      <div class="stat-value">${fmtMoney(supplierStats.totalTTC)}</div>
+      <div class="stat-sub">${fmtMoney(supplierStats.totalHT)} HT</div>
+    </div>
+    <div class="stat">
+      <div class="stat-top">
+        <div class="stat-icon ${supplierStats.remaining > 0 ? 'amber' : 'emerald'}">€</div>
+        <span class="stat-trend ${supplierStats.remaining > 0 ? 'down' : 'up'}">${supplierStats.totalTTC > 0 ? Math.round(supplierStats.deposits/supplierStats.totalTTC*100) : 0}% payé</span>
+      </div>
+      <div class="stat-label">Reste à payer</div>
+      <div class="stat-value">${fmtMoney(supplierStats.remaining)}</div>
+      <div class="stat-sub">${fmtMoney(supplierStats.deposits)} déjà versés</div>
+    </div>
+    <div class="stat">
+      <div class="stat-top">
+        <div class="stat-icon ${taskStats.overdue > 0 ? 'rose' : 'indigo'}">◷</div>
+        <span class="stat-trend ${taskStats.overdue > 0 ? 'down' : 'neutral'}">${taskStats.todo} en cours</span>
+      </div>
+      <div class="stat-label">Tâches</div>
+      <div class="stat-value">${taskStats.done}<span style="font-size: 16px; color: var(--text-muted); font-weight: 500;"> / ${taskStats.total}</span></div>
+      <div class="stat-sub">${taskStats.overdue} en retard • ${taskStats.soon} cette semaine</div>
+    </div>
+  `;
+
+  // Alerts
+  const alerts = [];
+  if (taskStats.overdue > 0) alerts.push({type:'rose', icon:'⚠', msg:`<strong>${taskStats.overdue} tâche(s) en retard</strong> — voir l'onglet Rétroplanning`});
+  if (supplierStats.dueSoon > 0) alerts.push({type:'amber', icon:'⏱', msg:`<strong>${supplierStats.dueSoon} échéance(s)</strong> de paiement dans les 14 prochains jours`});
+  if (guestStats.toRemind > 0) alerts.push({type:'indigo', icon:'✉', msg:`<strong>${guestStats.toRemind} invité(s) à relancer</strong> pour leur RSVP`});
+  if (data.budgetCap > 0 && supplierStats.totalTTC > data.budgetCap) alerts.push({type:'rose', icon:'!', msg:`<strong>Budget dépassé de ${fmtMoney(supplierStats.totalTTC - data.budgetCap)}</strong>`});
+  if (alerts.length === 0) alerts.push({type:'emerald', icon:'✓', msg:'<strong>Tout est sous contrôle.</strong> Aucune alerte critique pour le moment.'});
+
+  document.getElementById('alerts-container').innerHTML = alerts.map(a => `<div class="alert alert-${a.type}"><span class="alert-icon">${a.icon}</span><div>${a.msg}</div></div>`).join('');
+
+  // RSVP summary
+  const rsvpEl = document.getElementById('rsvp-summary');
+  if (guestStats.total === 0) {
+    rsvpEl.innerHTML = '<div class="empty"><div class="empty-icon">◉</div><div class="empty-title">Aucun invité</div><div class="empty-text">Ajoutez vos premiers invités pour suivre les RSVP</div></div>';
+  } else {
+    const pct = (n) => guestStats.total > 0 ? Math.round(n/guestStats.total*100) : 0;
+    rsvpEl.innerHTML = `
+      <div style="margin-bottom: 14px;">
+        <div style="display: flex; justify-content: space-between; font-size: 12.5px; margin-bottom: 6px; font-weight: 500;">
+          <span style="color: var(--emerald);">● Confirmés</span><span><strong>${guestStats.confirmed}</strong> · ${pct(guestStats.confirmed)}%</span>
+        </div>
+        <div class="progress"><div class="progress-bar emerald" style="width:${pct(guestStats.confirmed)}%"></div></div>
+      </div>
+      <div style="margin-bottom: 14px;">
+        <div style="display: flex; justify-content: space-between; font-size: 12.5px; margin-bottom: 6px; font-weight: 500;">
+          <span style="color: var(--amber);">● En attente</span><span><strong>${guestStats.pending}</strong> · ${pct(guestStats.pending)}%</span>
+        </div>
+        <div class="progress"><div class="progress-bar amber" style="width:${pct(guestStats.pending)}%"></div></div>
+      </div>
+      <div>
+        <div style="display: flex; justify-content: space-between; font-size: 12.5px; margin-bottom: 6px; font-weight: 500;">
+          <span style="color: var(--rose);">● Déclinés</span><span><strong>${guestStats.declined}</strong> · ${pct(guestStats.declined)}%</span>
+        </div>
+        <div class="progress"><div class="progress-bar rose" style="width:${pct(guestStats.declined)}%"></div></div>
+      </div>
+    `;
+  }
+
+  // Payment summary
+  const payEl = document.getElementById('payment-summary');
+  if (supplierStats.totalTTC === 0) {
+    payEl.innerHTML = '<div class="empty"><div class="empty-icon">€</div><div class="empty-title">Aucun fournisseur</div></div>';
+  } else {
+    const paidPct = supplierStats.totalTTC > 0 ? Math.round(supplierStats.deposits/supplierStats.totalTTC*100) : 0;
+    payEl.innerHTML = `
+      <div style="display: flex; align-items: baseline; gap: 8px; margin-bottom: 8px;">
+        <div style="font-size: 36px; font-weight: 800; color: var(--text); letter-spacing: -0.03em;">${paidPct}<span style="font-size: 22px; color: var(--text-muted);">%</span></div>
+        <div style="color: var(--text-soft); font-size: 13px;">du budget engagé</div>
+      </div>
+      <div class="progress" style="height: 12px; margin-bottom: 16px;"><div class="progress-bar" style="width:${paidPct}%"></div></div>
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+        <div>
+          <div style="font-size: 11px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.6px; font-weight: 600;">Versé</div>
+          <div style="font-size: 18px; font-weight: 700; color: var(--emerald); margin-top: 2px;">${fmtMoney(supplierStats.deposits)}</div>
+        </div>
+        <div>
+          <div style="font-size: 11px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.6px; font-weight: 600;">Restant</div>
+          <div style="font-size: 18px; font-weight: 700; color: var(--amber); margin-top: 2px;">${fmtMoney(supplierStats.remaining)}</div>
+        </div>
+      </div>
+    `;
+  }
+
+  // Donut chart
+  document.getElementById('budget-donut').innerHTML = renderDonut();
+
+  // Urgent tasks
+  const urgent = data.tasks.filter(t => !t.done).map(t => {
+    const days = Math.ceil((new Date(t.dueDate) - new Date()) / 86400000);
+    return {...t, daysLeft: days};
+  }).sort((a,b) => a.daysLeft - b.daysLeft).slice(0, 5);
+
+  const urgentEl = document.getElementById('urgent-tasks');
+  if (urgent.length === 0) {
+    urgentEl.innerHTML = '<div class="empty"><div class="empty-icon">✓</div><div class="empty-title">Aucune tâche en cours</div></div>';
+  } else {
+    urgentEl.innerHTML = urgent.map(t => `
+      <div class="check-row" style="padding: 10px 12px; margin-bottom: 6px;">
+        <input type="checkbox" onchange="toggleTask('${t.id}'); renderDashboard();">
+        <div class="task-info">
+          <div class="task-title" style="font-size: 12.5px;">${escapeHtml(t.title)}</div>
+          <div class="task-meta">
+            <span class="${t.daysLeft < 0 ? 'task-overdue' : t.daysLeft <= 7 ? 'task-soon' : ''}">
+              ${t.daysLeft < 0 ? `↓ ${Math.abs(t.daysLeft)}j retard` : t.daysLeft === 0 ? "Aujourd'hui" : `Dans ${t.daysLeft}j`}
+            </span>
+          </div>
+        </div>
+      </div>
+    `).join('');
+  }
+}
+
+function computeGuestStats() {
+  const total = data.guests.length;
+  const confirmed = data.guests.filter(g => g.rsvp === 'confirmé').length;
+  const declined = data.guests.filter(g => g.rsvp === 'décliné').length;
+  const pending = data.guests.filter(g => g.rsvp === 'en attente' || !g.rsvp).length;
+  const toRemind = data.guests.filter(g => g.rsvp === 'relancer').length;
+  const plusOnes = data.guests.filter(g => g.rsvp === 'confirmé' && g.plusOne).length;
+  const sent = data.guests.filter(g => g.invitationSent).length;
+  return { total, confirmed, declined, pending, toRemind, plusOnes, sent };
+}
+function computeSupplierStats() {
+  const count = data.suppliers.length;
+  const totalHT = data.suppliers.reduce((s,x) => s + (Number(x.ht)||0), 0);
+  const totalTTC = data.suppliers.reduce((s,x) => s + (Number(x.ttc)||0), 0);
+  const deposits = data.suppliers.reduce((s,x) => s + (Number(x.deposit)||0), 0);
+  const remaining = totalTTC - deposits;
+  const now = new Date();
+  const dueSoon = data.suppliers.filter(s => {
+    if (!s.dueDate || s.status === 'Soldé') return false;
+    const days = (new Date(s.dueDate) - now) / 86400000;
+    return days <= 14 && days >= -30;
+  }).length;
+  return { count, totalHT, totalTTC, deposits, remaining, dueSoon };
+}
+function computeTaskStats() {
+  const total = data.tasks.length;
+  const done = data.tasks.filter(t => t.done).length;
+  const todo = total - done;
+  const now = new Date();
+  const overdue = data.tasks.filter(t => !t.done && new Date(t.dueDate) < now).length;
+  const soon = data.tasks.filter(t => {
+    if (t.done) return false;
+    const d = (new Date(t.dueDate) - now) / 86400000;
+    return d >= 0 && d <= 7;
+  }).length;
+  return { total, done, todo, overdue, soon };
+}
+
+// ============ DONUT CHART ============
+function renderDonut() {
+  const byCategory = {};
+  data.suppliers.forEach(s => {
+    const cat = s.category || 'Autre';
+    byCategory[cat] = (byCategory[cat]||0) + (Number(s.ttc)||0);
+  });
+  const items = Object.entries(byCategory).filter(([_,v]) => v > 0).sort((a,b) => b[1]-a[1]);
+  const total = items.reduce((s,x) => s+x[1], 0);
+
+  if (items.length === 0) return '<div class="empty"><div class="empty-icon">○</div><div class="empty-title">Aucune dépense</div><div class="empty-text">Ajoutez des fournisseurs pour voir la répartition</div></div>';
+
+  const size = 200;
+  const center = size / 2;
+  const radius = 75;
+  const innerRadius = 50;
+
+  let cumulative = 0;
+  const arcs = items.map(([cat, value]) => {
+    const meta = getCategoryMeta(cat);
+    const percent = value / total;
+    const startAngle = cumulative * 2 * Math.PI - Math.PI / 2;
+    cumulative += percent;
+    const endAngle = cumulative * 2 * Math.PI - Math.PI / 2;
+
+    const largeArc = percent > 0.5 ? 1 : 0;
+    const x1 = center + radius * Math.cos(startAngle);
+    const y1 = center + radius * Math.sin(startAngle);
+    const x2 = center + radius * Math.cos(endAngle);
+    const y2 = center + radius * Math.sin(endAngle);
+    const x3 = center + innerRadius * Math.cos(endAngle);
+    const y3 = center + innerRadius * Math.sin(endAngle);
+    const x4 = center + innerRadius * Math.cos(startAngle);
+    const y4 = center + innerRadius * Math.sin(startAngle);
+
+    const path = `M ${x1} ${y1} A ${radius} ${radius} 0 ${largeArc} 1 ${x2} ${y2} L ${x3} ${y3} A ${innerRadius} ${innerRadius} 0 ${largeArc} 0 ${x4} ${y4} Z`;
+    return { path, color: meta.color, cat, value, percent };
+  });
+
+  const svg = `
+    <svg class="donut-svg" width="${size}" height="${size}" viewBox="0 0 ${size} ${size}">
+      ${arcs.map(a => `<path d="${a.path}" fill="${a.color}" stroke="white" stroke-width="2"/>`).join('')}
+      <text x="${center}" y="${center - 6}" text-anchor="middle" font-size="11" fill="var(--text-muted)" font-weight="600">Total TTC</text>
+      <text x="${center}" y="${center + 14}" text-anchor="middle" font-size="18" fill="var(--text)" font-weight="800">${fmtMoney(total)}</text>
+    </svg>
+  `;
+
+  const legend = `
+    <div class="legend">
+      ${arcs.map(a => `
+        <div class="legend-item">
+          <div class="legend-dot" style="background:${a.color}"></div>
+          <div class="legend-label">${escapeHtml(a.cat)}</div>
+          <div class="legend-value">${fmtMoney(a.value)}<span class="legend-pct">${Math.round(a.percent*100)}%</span></div>
+        </div>
+      `).join('')}
+    </div>
+  `;
+
+  return `<div class="donut-wrap">${svg}${legend}</div>`;
+}
+
+// ====================================================================
+// SUPPLIERS
+// ====================================================================
+function renderSuppliers() {
+  const search = (document.getElementById('supplier-search').value || '').toLowerCase();
+  const cat = document.getElementById('supplier-filter').value;
+  const status = document.getElementById('supplier-status-filter').value;
+
+  let list = data.suppliers.filter(s =>
+    (!search || (s.name||'').toLowerCase().includes(search) || (s.contact||'').toLowerCase().includes(search) || (s.description||'').toLowerCase().includes(search) || (s.email||'').toLowerCase().includes(search)) &&
+    (!cat || s.category === cat) &&
+    (!status || s.status === status)
+  );
+
+  // Stats
+  const stats = computeSupplierStats();
+  document.getElementById('suppliers-stats').innerHTML = `
+    <div class="stat">
+      <div class="stat-top"><div class="stat-icon gold">◊</div></div>
+      <div class="stat-label">Total prestataires</div>
+      <div class="stat-value">${stats.count}</div>
+    </div>
+    <div class="stat">
+      <div class="stat-top"><div class="stat-icon indigo">€</div></div>
+      <div class="stat-label">Total HT</div>
+      <div class="stat-value">${fmtMoney(stats.totalHT)}</div>
+    </div>
+    <div class="stat">
+      <div class="stat-top"><div class="stat-icon emerald">€</div></div>
+      <div class="stat-label">Total TTC</div>
+      <div class="stat-value">${fmtMoney(stats.totalTTC)}</div>
+    </div>
+    <div class="stat">
+      <div class="stat-top"><div class="stat-icon amber">◷</div></div>
+      <div class="stat-label">Reste à payer</div>
+      <div class="stat-value">${fmtMoney(stats.remaining)}</div>
+    </div>
+  `;
+
+  const tbody = document.getElementById('suppliers-tbody');
+  const tfoot = document.getElementById('suppliers-tfoot');
+  if (list.length === 0) {
+    tbody.innerHTML = '<tr><td colspan="11"><div class="empty"><div class="empty-icon">◊</div><div class="empty-title">Aucun fournisseur</div><div class="empty-text">Cliquez sur "Nouveau fournisseur" pour commencer</div></div></td></tr>';
+    tfoot.innerHTML = '';
+    return;
+  }
+
+  tbody.innerHTML = list.map(s => {
+    const remaining = (Number(s.ttc)||0) - (Number(s.deposit)||0);
+    const meta = getCategoryMeta(s.category);
+    const statusPill = {
+      'En cours': 'pill-muted',
+      'Devis reçu': 'pill-indigo',
+      'Devis signé': 'pill-gold',
+      'Acompte versé': 'pill-amber',
+      'Soldé': 'pill-emerald'
+    }[s.status] || 'pill-muted';
+    const dueDays = s.dueDate ? Math.ceil((new Date(s.dueDate) - new Date()) / 86400000) : null;
+    const dueClass = dueDays !== null && dueDays < 0 && s.status !== 'Soldé' ? 'task-overdue' :
+                     dueDays !== null && dueDays <= 14 && s.status !== 'Soldé' ? 'task-soon' : '';
+    return `
+      <tr>
+        <td>
+          <div style="display: flex; align-items: center; gap: 8px;">
+            <span style="font-size: 16px;">${meta.icon}</span>
+            <span style="font-size: 12.5px; color: var(--text-soft);">${escapeHtml(s.category||'—')}</span>
+          </div>
+        </td>
+        <td><strong>${escapeHtml(s.name||'—')}</strong></td>
+        <td>
+          ${escapeHtml(s.contact||'—')}
+          ${s.phone ? `<div style="font-size: 11px; color: var(--text-muted);">${escapeHtml(s.phone)}</div>` : ''}
+          ${s.email ? `<div style="font-size: 11px;"><a href="mailto:${escapeHtml(s.email)}" style="color: var(--indigo);">${escapeHtml(s.email)}</a></div>` : ''}
+        </td>
+        <td style="color: var(--text-soft);">${escapeHtml(s.description||'—')}</td>
+        <td style="text-align: right; font-variant-numeric: tabular-nums;">${fmtMoneyExact(s.ht)}</td>
+        <td><span style="color: var(--text-muted); font-size: 12px;">${s.tva||0}%</span></td>
+        <td style="text-align: right; font-weight: 700; font-variant-numeric: tabular-nums;">${fmtMoneyExact(s.ttc)}</td>
+        <td style="text-align: right; color: var(--emerald); font-variant-numeric: tabular-nums;">${s.deposit ? fmtMoneyExact(s.deposit) : '—'}</td>
+        <td style="text-align: right; color: ${remaining > 0 ? 'var(--amber)' : 'var(--emerald)'}; font-weight: 600; font-variant-numeric: tabular-nums;">${fmtMoneyExact(remaining)}</td>
+        <td><span class="pill ${statusPill}"><span class="pill-dot"></span>${escapeHtml(s.status||'—')}</span></td>
+        <td>
+          <div class="actions">
+            <button class="btn-icon" title="Modifier" onclick="openSupplierModal('${s.id}')">✎</button>
+            <button class="btn-icon danger" title="Supprimer" onclick="deleteSupplier('${s.id}')">🗑</button>
+          </div>
+        </td>
+      </tr>
+    `;
+  }).join('');
+
+  // Footer with totals
+  const totalHT = list.reduce((s,x) => s + (Number(x.ht)||0), 0);
+  const totalTTC = list.reduce((s,x) => s + (Number(x.ttc)||0), 0);
+  const totalDep = list.reduce((s,x) => s + (Number(x.deposit)||0), 0);
+  tfoot.innerHTML = `
+    <tr style="background: var(--paper-2); font-weight: 700;">
+      <td colspan="4" style="text-transform: uppercase; font-size: 11px; letter-spacing: 0.6px; color: var(--text-soft);">Total</td>
+      <td style="text-align: right; font-variant-numeric: tabular-nums;">${fmtMoneyExact(totalHT)}</td>
+      <td></td>
+      <td style="text-align: right; font-variant-numeric: tabular-nums;">${fmtMoneyExact(totalTTC)}</td>
+      <td style="text-align: right; font-variant-numeric: tabular-nums; color: var(--emerald);">${fmtMoneyExact(totalDep)}</td>
+      <td style="text-align: right; font-variant-numeric: tabular-nums; color: var(--amber);">${fmtMoneyExact(totalTTC - totalDep)}</td>
+      <td colspan="2"></td>
+    </tr>
+  `;
+}
+
+function openSupplierModal(id) {
+  const s = id ? data.suppliers.find(x => x.id === id) : { id: uid(), name: '', category: 'Lieu / Salle', ht: 0, tva: 20, ttc: 0, deposit: 0, dueDate: '', status: 'En cours', contact: '', phone: '', email: '', description: '', notes: '' };
+  editingItem = s;
+  document.getElementById('modal-title').textContent = id ? 'Modifier fournisseur' : 'Nouveau fournisseur';
+  document.getElementById('modal-sub').textContent = '';
+  document.getElementById('modal-body').innerHTML = `
+    <div class="form-row">
+      <div class="form-group">
+        <label>Nom du prestataire *</label>
+        <input id="f-name" value="${escapeHtml(s.name)}" required>
+      </div>
+      <div class="form-group">
+        <label>Catégorie</label>
+        <select id="f-category">
+          ${SUPPLIER_CATEGORIES.map(c => `<option ${s.category===c.name?'selected':''}>${c.name}</option>`).join('')}
+        </select>
+      </div>
+    </div>
+    <div class="form-group">
+      <label>Description / prestation <span style="color: var(--text-muted); font-weight: 400;">(ex: Sono, Kiosk, Food, Drink...)</span></label>
+      <input id="f-desc" value="${escapeHtml(s.description||'')}">
+    </div>
+    <div class="form-row-3">
+      <div class="form-group">
+        <label>Contact</label>
+        <input id="f-contact" value="${escapeHtml(s.contact||'')}">
+      </div>
+      <div class="form-group">
+        <label class="optional">Téléphone</label>
+        <input id="f-phone" value="${escapeHtml(s.phone||'')}">
+      </div>
+      <div class="form-group">
+        <label class="optional">Email</label>
+        <input id="f-email" type="email" value="${escapeHtml(s.email||'')}">
+      </div>
+    </div>
+    <div class="form-row-3">
+      <div class="form-group">
+        <label>Montant HT (€)</label>
+        <div class="input-group"><span class="input-prefix">€</span><input id="f-ht" type="number" step="0.01" value="${s.ht||0}" oninput="recomputeTTC()"></div>
+      </div>
+      <div class="form-group">
+        <label>TVA (%)</label>
+        <select id="f-tva" onchange="recomputeTTC()">
+          <option value="0" ${s.tva==0?'selected':''}>0% (exonéré)</option>
+          <option value="5.5" ${s.tva==5.5?'selected':''}>5,5%</option>
+          <option value="10" ${s.tva==10?'selected':''}>10%</option>
+          <option value="20" ${s.tva==20?'selected':''}>20%</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Montant TTC (€)</label>
+        <div class="input-group"><span class="input-prefix">€</span><input id="f-ttc" type="number" step="0.01" value="${s.ttc||0}"></div>
+      </div>
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label class="optional">Acompte versé (€)</label>
+        <div class="input-group"><span class="input-prefix">€</span><input id="f-deposit" type="number" step="0.01" value="${s.deposit||0}"></div>
+      </div>
+      <div class="form-group">
+        <label>Statut</label>
+        <select id="f-status">
+          ${['En cours','Devis reçu','Devis signé','Acompte versé','Soldé'].map(c => `<option ${s.status===c?'selected':''}>${c}</option>`).join('')}
+        </select>
+      </div>
+    </div>
+    <div class="form-group">
+      <label class="optional">Échéance solde</label>
+      <input id="f-due" type="date" value="${s.dueDate||''}">
+    </div>
+    <div class="form-group">
+      <label class="optional">Notes</label>
+      <textarea id="f-notes">${escapeHtml(s.notes||'')}</textarea>
+    </div>
+  `;
+  document.getElementById('modal-footer').innerHTML = `
+    <button class="btn btn-ghost" onclick="closeModal()">Annuler</button>
+    <button class="btn btn-primary" onclick="saveSupplier('${id||''}')">${id ? 'Enregistrer' : 'Créer'}</button>
+  `;
+  document.getElementById('modal-overlay').classList.add('show');
+}
+
+function recomputeTTC() {
+  const ht = parseFloat(document.getElementById('f-ht').value) || 0;
+  const tva = parseFloat(document.getElementById('f-tva').value) || 0;
+  const ttc = ht * (1 + tva/100);
+  document.getElementById('f-ttc').value = Math.round(ttc * 100) / 100;
+}
+
+function saveSupplier(id) {
+  const s = {
+    id: id || uid(),
+    name: document.getElementById('f-name').value.trim(),
+    category: document.getElementById('f-category').value,
+    description: document.getElementById('f-desc').value.trim(),
+    contact: document.getElementById('f-contact').value.trim(),
+    phone: document.getElementById('f-phone').value.trim(),
+    email: document.getElementById('f-email').value.trim(),
+    ht: parseFloat(document.getElementById('f-ht').value) || 0,
+    tva: parseFloat(document.getElementById('f-tva').value) || 0,
+    ttc: parseFloat(document.getElementById('f-ttc').value) || 0,
+    deposit: parseFloat(document.getElementById('f-deposit').value) || 0,
+    dueDate: document.getElementById('f-due').value,
+    status: document.getElementById('f-status').value,
+    notes: document.getElementById('f-notes').value.trim()
+  };
+  if (!s.name) { alert('Le nom est obligatoire'); return; }
+  const idx = data.suppliers.findIndex(x => x.id === s.id);
+  if (idx >= 0) data.suppliers[idx] = s;
+  else data.suppliers.push(s);
+  saveData();
+  closeModal();
+  renderSuppliers();
+  showToast('Fournisseur enregistré');
+}
+function deleteSupplier(id) {
+  const s = data.suppliers.find(x => x.id === id);
+  if (!s) return;
+  if (!confirm(`Supprimer "${s.name}" ?`)) return;
+  data.suppliers = data.suppliers.filter(s => s.id !== id);
+  saveData();
+  renderSuppliers();
+  showToast('Fournisseur supprimé');
+}
+
+// ====================================================================
+// GUESTS
+// ====================================================================
+function renderGuests() {
+  const search = (document.getElementById('guest-search').value || '').toLowerCase();
+  const cat = document.getElementById('guest-category-filter').value;
+  const rsvp = document.getElementById('guest-rsvp-filter').value;
+
+  let list = data.guests.filter(g =>
+    (!search || `${g.firstName} ${g.lastName} ${g.email||''} ${g.organization||''}`.toLowerCase().includes(search)) &&
+    (!cat || g.category === cat) &&
+    (!rsvp || g.rsvp === rsvp)
+  );
+
+  // Stats
+  const stats = computeGuestStats();
+  document.getElementById('guests-stats').innerHTML = `
+    <div class="stat">
+      <div class="stat-top"><div class="stat-icon indigo">◉</div></div>
+      <div class="stat-label">Total invités</div>
+      <div class="stat-value">${stats.total}</div>
+      <div class="stat-sub">${stats.sent} invitations envoyées</div>
+    </div>
+    <div class="stat">
+      <div class="stat-top"><div class="stat-icon emerald">✓</div><span class="stat-trend up">+${stats.plusOnes} +1</span></div>
+      <div class="stat-label">Confirmés</div>
+      <div class="stat-value">${stats.confirmed}</div>
+      <div class="stat-sub">${stats.confirmed + stats.plusOnes} attendus au total</div>
+    </div>
+    <div class="stat">
+      <div class="stat-top"><div class="stat-icon amber">⏱</div></div>
+      <div class="stat-label">En attente</div>
+      <div class="stat-value">${stats.pending}</div>
+      <div class="stat-sub">${stats.toRemind} à relancer</div>
+    </div>
+    <div class="stat">
+      <div class="stat-top"><div class="stat-icon rose">✕</div></div>
+      <div class="stat-label">Déclinés</div>
+      <div class="stat-value">${stats.declined}</div>
+      <div class="stat-sub">${stats.total > 0 ? Math.round(stats.declined/stats.total*100) : 0}% du total</div>
+    </div>
+  `;
+
+  const tbody = document.getElementById('guests-tbody');
+  if (list.length === 0) {
+    tbody.innerHTML = '<tr><td colspan="8"><div class="empty"><div class="empty-icon">◉</div><div class="empty-title">Aucun invité</div><div class="empty-text">Importez un CSV ou ajoutez manuellement</div></div></td></tr>';
+    return;
+  }
+
+  tbody.innerHTML = list.map(g => {
+    const rsvpPill = {
+      'confirmé': 'pill-emerald',
+      'décliné': 'pill-rose',
+      'relancer': 'pill-amber',
+      'en attente': 'pill-muted'
+    }[g.rsvp] || 'pill-muted';
+    return `
+      <tr>
+        <td><input type="checkbox" class="guest-check" data-id="${g.id}"></td>
+        <td>
+          <strong>${escapeHtml(g.firstName)} ${escapeHtml(g.lastName)}</strong>
+          ${g.invitationSent ? '<div style="font-size:10px; color: var(--emerald); margin-top: 2px;">✓ Invitation envoyée</div>' : ''}
+        </td>
+        <td>${escapeHtml(g.organization||'—')}</td>
+        <td><a href="mailto:${escapeHtml(g.email||'')}" style="color: var(--indigo);">${escapeHtml(g.email||'—')}</a></td>
+        <td><span class="pill pill-indigo">${escapeHtml(g.category||'—')}</span></td>
+        <td>${g.plusOne ? '✓ '+escapeHtml(g.plusOneName||'+1') : '—'}</td>
+        <td>
+          <select onchange="updateGuestRsvp('${g.id}', this.value)" style="padding: 5px 8px; font-size: 12px; min-width: 110px;">
+            <option ${g.rsvp==='en attente'?'selected':''}>en attente</option>
+            <option ${g.rsvp==='confirmé'?'selected':''}>confirmé</option>
+            <option ${g.rsvp==='décliné'?'selected':''}>décliné</option>
+            <option ${g.rsvp==='relancer'?'selected':''}>relancer</option>
+          </select>
+        </td>
+        <td>
+          <div class="actions">
+            <button class="btn-icon" title="Envoyer invitation" onclick="sendInviteToGuest('${g.id}')">✉</button>
+            <button class="btn-icon" title="Modifier" onclick="openGuestModal('${g.id}')">✎</button>
+            <button class="btn-icon danger" title="Supprimer" onclick="deleteGuest('${g.id}')">🗑</button>
+          </div>
+        </td>
+      </tr>
+    `;
+  }).join('');
+}
+
+function openGuestModal(id) {
+  const g = id ? data.guests.find(x => x.id === id) : { id: uid(), firstName: '', lastName: '', email: '', organization: '', category: 'VIP', rsvp: 'en attente', plusOne: false, plusOneName: '', dietary: '', phone: '', notes: '', invitationSent: false };
+  editingItem = g;
+  document.getElementById('modal-title').textContent = id ? 'Modifier invité' : 'Nouvel invité';
+  document.getElementById('modal-sub').textContent = '';
+  document.getElementById('modal-body').innerHTML = `
+    <div class="form-row">
+      <div class="form-group">
+        <label>Prénom *</label>
+        <input id="g-first" value="${escapeHtml(g.firstName)}" required>
+      </div>
+      <div class="form-group">
+        <label>Nom *</label>
+        <input id="g-last" value="${escapeHtml(g.lastName)}" required>
+      </div>
+    </div>
+    <div class="form-group">
+      <label>Email *</label>
+      <input id="g-email" type="email" value="${escapeHtml(g.email)}" required>
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label class="optional">Organisation</label>
+        <input id="g-org" value="${escapeHtml(g.organization||'')}">
+      </div>
+      <div class="form-group">
+        <label class="optional">Téléphone</label>
+        <input id="g-phone" value="${escapeHtml(g.phone||'')}">
+      </div>
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label>Catégorie</label>
+        <select id="g-cat">
+          ${['VIP','Investisseur','Candidat','Presse','Partenaire','Équipe','Autre']
+            .map(c => `<option ${g.category===c?'selected':''}>${c}</option>`).join('')}
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Statut RSVP</label>
+        <select id="g-rsvp">
+          ${['en attente','confirmé','décliné','relancer'].map(c => `<option ${g.rsvp===c?'selected':''}>${c}</option>`).join('')}
+        </select>
+      </div>
+    </div>
+    <div class="form-group">
+      <label><input id="g-plus" type="checkbox" ${g.plusOne?'checked':''} style="width:auto; margin-right: 6px; vertical-align: middle;"> Vient accompagné(e)</label>
+      <input id="g-plusname" placeholder="Nom de l'accompagnant" value="${escapeHtml(g.plusOneName||'')}" style="margin-top: 6px;">
+    </div>
+    <div class="form-group">
+      <label class="optional">Régime alimentaire / contraintes</label>
+      <input id="g-diet" value="${escapeHtml(g.dietary||'')}" placeholder="Végétarien, sans gluten, allergies...">
+    </div>
+    <div class="form-group">
+      <label class="optional">Notes</label>
+      <textarea id="g-notes">${escapeHtml(g.notes||'')}</textarea>
+    </div>
+  `;
+  document.getElementById('modal-footer').innerHTML = `
+    <button class="btn btn-ghost" onclick="closeModal()">Annuler</button>
+    <button class="btn btn-primary" onclick="saveGuest('${id||''}')">${id ? 'Enregistrer' : 'Créer'}</button>
+  `;
+  document.getElementById('modal-overlay').classList.add('show');
+}
+
+function saveGuest(id) {
+  const g = {
+    id: id || uid(),
+    firstName: document.getElementById('g-first').value.trim(),
+    lastName: document.getElementById('g-last').value.trim(),
+    email: document.getElementById('g-email').value.trim(),
+    organization: document.getElementById('g-org').value.trim(),
+    phone: document.getElementById('g-phone').value.trim(),
+    category: document.getElementById('g-cat').value,
+    rsvp: document.getElementById('g-rsvp').value,
+    plusOne: document.getElementById('g-plus').checked,
+    plusOneName: document.getElementById('g-plusname').value.trim(),
+    dietary: document.getElementById('g-diet').value.trim(),
+    notes: document.getElementById('g-notes').value.trim(),
+    invitationSent: editingItem?.invitationSent || false,
+    invitationSentAt: editingItem?.invitationSentAt || null,
+    checkedIn: editingItem?.checkedIn || false,
+    checkedInAt: editingItem?.checkedInAt || null
+  };
+  if (!g.firstName || !g.lastName) { alert('Prénom et nom obligatoires'); return; }
+  const idx = data.guests.findIndex(x => x.id === g.id);
+  if (idx >= 0) data.guests[idx] = g;
+  else data.guests.push(g);
+  saveData();
+  closeModal();
+  renderGuests();
+  showToast('Invité enregistré');
+}
+function deleteGuest(id) {
+  const g = data.guests.find(x => x.id === id);
+  if (!g) return;
+  if (!confirm(`Supprimer ${g.firstName} ${g.lastName} ?`)) return;
+  data.guests = data.guests.filter(g => g.id !== id);
+  saveData();
+  renderGuests();
+}
+function updateGuestRsvp(id, value) {
+  const g = data.guests.find(x => x.id === id);
+  if (g) { g.rsvp = value; saveData(); renderGuests(); }
+}
+function toggleAllGuests(checkbox) {
+  document.querySelectorAll('.guest-check').forEach(c => c.checked = checkbox.checked);
+}
+
+function exportGuestsCSV() {
+  const headers = ['Prénom','Nom','Email','Organisation','Téléphone','Catégorie','RSVP','+1','Nom +1','Régime','Notes'];
+  const rows = data.guests.map(g => [g.firstName, g.lastName, g.email, g.organization, g.phone, g.category, g.rsvp, g.plusOne?'oui':'non', g.plusOneName, g.dietary, g.notes].map(v => `"${(v||'').toString().replace(/"/g,'""')}"`).join(','));
+  const csv = [headers.join(','), ...rows].join('\n');
+  downloadFile('invites-qvema.csv', csv, 'text/csv;charset=utf-8');
+  showToast(`${data.guests.length} invité(s) exporté(s)`);
+}
+
+function importGuestsCSV(event) {
+  const file = event.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = e => {
+    const text = e.target.result;
+    const lines = text.split(/\r?\n/).filter(l => l.trim());
+    if (lines.length < 2) { alert('Fichier vide ou invalide'); return; }
+    const parseLine = (line) => {
+      const result = []; let curr = '', inQuotes = false;
+      for (let i = 0; i < line.length; i++) {
+        const c = line[i];
+        if (c === '"') {
+          if (inQuotes && line[i+1] === '"') { curr += '"'; i++; }
+          else inQuotes = !inQuotes;
+        } else if ((c === ',' || c === ';') && !inQuotes) { result.push(curr); curr = ''; }
+        else curr += c;
+      }
+      result.push(curr);
+      return result;
+    };
+    const headers = parseLine(lines[0]).map(h => h.toLowerCase().trim());
+    const findIdx = (names) => headers.findIndex(h => names.some(n => h.includes(n)));
+    const idx = {
+      first: findIdx(['prénom','prenom','first']),
+      last: findIdx(['nom','last']),
+      email: findIdx(['email','mail']),
+      org: findIdx(['organis','société','company','entreprise']),
+      phone: findIdx(['tél','tel','phone']),
+      cat: findIdx(['catég','categ','type'])
+    };
+    let added = 0;
+    for (let i = 1; i < lines.length; i++) {
+      const cols = parseLine(lines[i]);
+      const firstName = idx.first >= 0 ? cols[idx.first] : '';
+      const lastName = idx.last >= 0 ? cols[idx.last] : '';
+      const email = idx.email >= 0 ? cols[idx.email] : '';
+      if (!firstName && !lastName && !email) continue;
+      data.guests.push({
+        id: uid(),
+        firstName: (firstName||'').trim(),
+        lastName: (lastName||'').trim(),
+        email: (email||'').trim(),
+        organization: idx.org >= 0 ? (cols[idx.org]||'').trim() : '',
+        phone: idx.phone >= 0 ? (cols[idx.phone]||'').trim() : '',
+        category: (idx.cat >= 0 ? (cols[idx.cat]||'').trim() : '') || 'Autre',
+        rsvp: 'en attente',
+        plusOne: false,
+        plusOneName: '',
+        dietary: '',
+        notes: '',
+        invitationSent: false,
+        checkedIn: false
+      });
+      added++;
+    }
+    saveData();
+    renderGuests();
+    showToast(`${added} invité(s) importé(s)`);
+    event.target.value = '';
+  };
+  reader.readAsText(file, 'UTF-8');
+}
+
+// ====================================================================
+// INVITATIONS
+// ====================================================================
+function renderInvitations() {
+  document.getElementById('invite-subject').value = data.template.subject;
+  document.getElementById('invite-body').value = data.template.body;
+  renderRsvpTracking();
+}
+
+function saveTemplate() {
+  data.template = {
+    subject: document.getElementById('invite-subject').value,
+    body: document.getElementById('invite-body').value
+  };
+  saveData();
+  showToast('Modèle enregistré');
+}
+function resetTemplate() {
+  if (!confirm('Restaurer le modèle par défaut ?')) return;
+  data.template = JSON.parse(JSON.stringify(DEFAULT_TEMPLATE));
+  saveData();
+  renderInvitations();
+}
+
+function buildEmail(guest) {
+  const eventDate = new Date(EVENT_INFO.date);
+  const dateStr = eventDate.toLocaleDateString('fr-FR', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
+  const replace = (s) => s
+    .replace(/{{prenom}}/g, guest.firstName||'')
+    .replace(/{{nom}}/g, guest.lastName||'')
+    .replace(/{{organisation}}/g, guest.organization||'')
+    .replace(/{{date}}/g, dateStr)
+    .replace(/{{lieu}}/g, EVENT_INFO.location)
+    .replace(/{{horaire}}/g, EVENT_INFO.time);
+  return {
+    subject: replace(data.template.subject),
+    body: replace(data.template.body)
+  };
+}
+
+function sendInviteToGuest(id) {
+  const g = data.guests.find(x => x.id === id);
+  if (!g || !g.email) { alert('Email manquant'); return; }
+  const { subject, body } = buildEmail(g);
+  const url = `mailto:${encodeURIComponent(g.email)}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+  window.location.href = url;
+  g.invitationSent = true;
+  g.invitationSentAt = new Date().toISOString();
+  saveData();
+  setTimeout(renderGuests, 500);
+}
+
+function bulkInvite() {
+  const target = document.getElementById('bulk-target').value;
+  let list;
+  if (target === 'not-sent') list = data.guests.filter(g => !g.invitationSent && g.email);
+  else if (target === 'pending') list = data.guests.filter(g => (g.rsvp === 'en attente' || g.rsvp === 'relancer') && g.email);
+  else list = data.guests.filter(g => g.email);
+
+  if (list.length === 0) { alert('Aucun invité correspondant avec un email valide'); return; }
+  if (!confirm(`Préparer ${list.length} email(s) ? Ils s'ouvriront un par un dans votre client mail (avec une pause de 1.5s entre chacun).`)) return;
+
+  const progressEl = document.getElementById('bulk-progress');
+  let i = 0;
+  const sendNext = () => {
+    if (i >= list.length) {
+      progressEl.innerHTML = `<div class="alert alert-emerald"><span class="alert-icon">✓</span><div><strong>${list.length} email(s) préparé(s)</strong> — vérifiez votre client mail</div></div>`;
+      saveData();
+      return;
+    }
+    const g = list[i];
+    progressEl.innerHTML = `<div class="alert alert-indigo"><span class="alert-icon">✉</span><div>Envoi <strong>${i+1}/${list.length}</strong> : ${escapeHtml(g.firstName)} ${escapeHtml(g.lastName)} (${escapeHtml(g.email)})...</div></div>`;
+    const { subject, body } = buildEmail(g);
+    const url = `mailto:${encodeURIComponent(g.email)}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+    window.open(url, '_blank');
+    g.invitationSent = true;
+    g.invitationSentAt = new Date().toISOString();
+    i++;
+    setTimeout(sendNext, 1500);
+  };
+  sendNext();
+}
+
+function renderRsvpTracking() {
+  const stats = computeGuestStats();
+  if (stats.total === 0) {
+    document.getElementById('rsvp-tracking').innerHTML = '<div class="empty"><div class="empty-icon">✉</div><div class="empty-title">Aucun invité</div></div>';
+    return;
+  }
+  const rows = [
+    { label: 'Invitations envoyées', value: stats.sent, color: 'var(--ink-2)' },
+    { label: 'RSVP confirmés', value: stats.confirmed, color: 'var(--emerald)' },
+    { label: 'RSVP en attente', value: stats.pending, color: 'var(--amber)' },
+    { label: 'RSVP déclinés', value: stats.declined, color: 'var(--rose)' }
+  ];
+  document.getElementById('rsvp-tracking').innerHTML = `
+    <div class="bar-list">
+      ${rows.map(r => {
+        const pct = stats.total > 0 ? Math.round(r.value/stats.total*100) : 0;
+        return `<div class="bar-item">
+          <div class="bar-name">${r.label}</div>
+          <div class="bar-track"><div class="bar-fill" style="width:${pct}%; background: ${r.color};">${pct > 15 ? pct+'%' : ''}</div></div>
+          <div class="bar-amount">${r.value} / ${stats.total}</div>
+        </div>`;
+      }).join('')}
+    </div>
+    <div class="alert alert-indigo" style="margin-top: 16px; margin-bottom: 0;">
+      <span class="alert-icon">◉</span>
+      <div><strong>Total attendu le jour J : ${stats.confirmed + stats.plusOnes} personne(s)</strong> · ${stats.confirmed} invités + ${stats.plusOnes} accompagnants</div>
+    </div>
+  `;
+}
+
+// ====================================================================
+// BUDGET
+// ====================================================================
+function renderBudget() {
+  const stats = computeSupplierStats();
+  const cap = data.budgetCap || 0;
+  const usedPct = cap > 0 ? Math.round(stats.totalTTC/cap*100) : 0;
+
+  document.getElementById('budget-stats').innerHTML = `
+    <div class="stat">
+      <div class="stat-top"><div class="stat-icon indigo">⚙</div></div>
+      <div class="stat-label">Budget plafond</div>
+      <div class="stat-value">${cap > 0 ? fmtMoney(cap) : '—'}</div>
+      <div class="stat-sub">${cap > 0 ? 'Plafond défini' : 'Cliquez "Définir budget total"'}</div>
+    </div>
+    <div class="stat">
+      <div class="stat-top">
+        <div class="stat-icon ${cap > 0 && stats.totalTTC > cap ? 'rose' : 'gold'}">€</div>
+        ${cap > 0 ? `<span class="stat-trend ${stats.totalTTC > cap ? 'down' : 'neutral'}">${usedPct}%</span>` : ''}
+      </div>
+      <div class="stat-label">Engagé (TTC)</div>
+      <div class="stat-value">${fmtMoney(stats.totalTTC)}</div>
+      <div class="stat-sub">${stats.count} fournisseurs · ${fmtMoney(stats.totalHT)} HT</div>
+    </div>
+    <div class="stat">
+      <div class="stat-top"><div class="stat-icon emerald">✓</div></div>
+      <div class="stat-label">Déjà payé</div>
+      <div class="stat-value">${fmtMoney(stats.deposits)}</div>
+      <div class="stat-sub">${stats.totalTTC > 0 ? Math.round(stats.deposits/stats.totalTTC*100) : 0}% de l'engagé</div>
+    </div>
+    <div class="stat">
+      <div class="stat-top"><div class="stat-icon amber">◷</div></div>
+      <div class="stat-label">Reste à payer</div>
+      <div class="stat-value">${fmtMoney(stats.remaining)}</div>
+      <div class="stat-sub">${stats.dueSoon} échéance(s) sous 14j</div>
+    </div>
+  `;
+
+  document.getElementById('budget-chart').innerHTML = renderDonut();
+
+  // Top suppliers
+  const top = data.suppliers.slice().sort((a,b) => (b.ttc||0)-(a.ttc||0)).slice(0, 8);
+  if (top.length === 0 || stats.totalTTC === 0) {
+    document.getElementById('top-suppliers').innerHTML = '<div class="empty"><div class="empty-icon">◊</div><div class="empty-title">Aucun fournisseur</div></div>';
+  } else {
+    const max = Math.max(...top.map(s => s.ttc||0), 1);
+    document.getElementById('top-suppliers').innerHTML = `
+      <div class="bar-list">
+        ${top.map(s => {
+          const meta = getCategoryMeta(s.category);
+          const pct = Math.round((s.ttc||0)/max*100);
+          return `<div class="bar-item">
+            <div class="bar-name">${meta.icon} ${escapeHtml(s.name)}</div>
+            <div class="bar-track"><div class="bar-fill" style="width:${pct}%; background:${meta.color};">${pct > 25 ? Math.round((s.ttc||0)/stats.totalTTC*100)+'%' : ''}</div></div>
+            <div class="bar-amount">${fmtMoney(s.ttc)}</div>
+          </div>`;
+        }).join('')}
+      </div>
+    `;
+  }
+
+  // Timeline
+  const upcoming = data.suppliers
+    .filter(s => s.dueDate && s.status !== 'Soldé')
+    .sort((a,b) => new Date(a.dueDate) - new Date(b.dueDate));
+  const timelineEl = document.getElementById('payment-timeline');
+  if (upcoming.length === 0) {
+    timelineEl.innerHTML = '<div class="empty"><div class="empty-icon">✓</div><div class="empty-title">Aucune échéance définie</div><div class="empty-text">Renseignez les dates d\'échéance dans la fiche fournisseur</div></div>';
+  } else {
+    timelineEl.innerHTML = `
+      <div class="table-scroll">
+        <table style="width: 100%;">
+          <thead><tr><th>Échéance</th><th>Fournisseur</th><th>Description</th><th style="text-align:right;">Restant</th><th>Statut</th></tr></thead>
+          <tbody>
+            ${upcoming.map(s => {
+              const remaining = (Number(s.ttc)||0) - (Number(s.deposit)||0);
+              const days = Math.ceil((new Date(s.dueDate) - new Date()) / 86400000);
+              const cls = days < 0 ? 'task-overdue' : days <= 14 ? 'task-soon' : '';
+              return `<tr>
+                <td class="${cls}">${fmtDate(s.dueDate)}<br><span style="font-size:11px;">${days < 0 ? `Retard ${Math.abs(days)}j` : days === 0 ? "Aujourd'hui" : `Dans ${days}j`}</span></td>
+                <td><strong>${escapeHtml(s.name)}</strong><br><span style="font-size:11px; color:var(--text-muted);">${getCategoryMeta(s.category).icon} ${escapeHtml(s.category)}</span></td>
+                <td style="color: var(--text-soft);">${escapeHtml(s.description||'—')}</td>
+                <td style="text-align: right; font-weight: 700;">${fmtMoneyExact(remaining)}</td>
+                <td><span class="pill pill-indigo"><span class="pill-dot"></span>${escapeHtml(s.status)}</span></td>
+              </tr>`;
+            }).join('')}
+          </tbody>
+        </table>
+      </div>
+    `;
+  }
+}
+
+function openBudgetCapModal() {
+  document.getElementById('modal-title').textContent = 'Budget total';
+  document.getElementById('modal-sub').textContent = 'Plafond global de l\'événement';
+  document.getElementById('modal-body').innerHTML = `
+    <div class="form-group">
+      <label>Budget global (€ TTC)</label>
+      <div class="input-group"><span class="input-prefix">€</span><input id="budget-cap-input" type="number" step="100" value="${data.budgetCap||0}"></div>
+      <p style="font-size: 12px; color: var(--text-muted); margin-top: 8px;">L'app vous alertera en cas de dépassement de ce plafond.</p>
+    </div>
+  `;
+  document.getElementById('modal-footer').innerHTML = `
+    <button class="btn btn-ghost" onclick="closeModal()">Annuler</button>
+    <button class="btn btn-primary" onclick="saveBudgetCap()">Enregistrer</button>
+  `;
+  document.getElementById('modal-overlay').classList.add('show');
+}
+function saveBudgetCap() {
+  data.budgetCap = parseFloat(document.getElementById('budget-cap-input').value) || 0;
+  saveData();
+  closeModal();
+  renderBudget();
+  showToast('Budget mis à jour');
+}
+
+// ====================================================================
+// TASKS
+// ====================================================================
+function renderTasks() {
+  const filter = document.getElementById('task-filter').value;
+  const cat = document.getElementById('task-category-filter').value;
+  const now = new Date();
+
+  let list = data.tasks.slice().sort((a,b) => {
+    if (a.done !== b.done) return a.done ? 1 : -1;
+    return new Date(a.dueDate) - new Date(b.dueDate);
+  });
+
+  list = list.filter(t => {
+    if (cat && t.category !== cat) return false;
+    if (filter === 'todo') return !t.done;
+    if (filter === 'done') return t.done;
+    if (filter === 'overdue') return !t.done && new Date(t.dueDate) < now;
+    if (filter === 'soon') {
+      if (t.done) return false;
+      const d = (new Date(t.dueDate) - now) / 86400000;
+      return d >= 0 && d <= 7;
+    }
+    return true;
+  });
+
+  // Stats
+  const stats = computeTaskStats();
+  const progress = stats.total > 0 ? Math.round(stats.done/stats.total*100) : 0;
+  document.getElementById('tasks-stats').innerHTML = `
+    <div class="stat">
+      <div class="stat-top"><div class="stat-icon indigo">◷</div></div>
+      <div class="stat-label">Avancement global</div>
+      <div class="stat-value">${progress}%</div>
+      <div class="progress" style="margin-top: 8px;"><div class="progress-bar emerald" style="width:${progress}%"></div></div>
+    </div>
+    <div class="stat">
+      <div class="stat-top"><div class="stat-icon emerald">✓</div></div>
+      <div class="stat-label">Terminées</div>
+      <div class="stat-value">${stats.done}</div>
+      <div class="stat-sub">sur ${stats.total} tâches</div>
+    </div>
+    <div class="stat">
+      <div class="stat-top"><div class="stat-icon amber">⏱</div></div>
+      <div class="stat-label">Cette semaine</div>
+      <div class="stat-value">${stats.soon}</div>
+      <div class="stat-sub">à venir dans 7 jours</div>
+    </div>
+    <div class="stat">
+      <div class="stat-top"><div class="stat-icon rose">⚠</div></div>
+      <div class="stat-label">En retard</div>
+      <div class="stat-value">${stats.overdue}</div>
+      <div class="stat-sub">à traiter en priorité</div>
+    </div>
+  `;
+
+  const el = document.getElementById('tasks-list');
+  if (list.length === 0) {
+    el.innerHTML = '<div class="card"><div class="empty"><div class="empty-icon">◷</div><div class="empty-title">Aucune tâche</div><div class="empty-text">Cliquez sur "Charger checklist type" pour pré-remplir avec 23 tâches recommandées</div></div></div>';
+    return;
+  }
+
+  el.innerHTML = list.map(t => {
+    const due = new Date(t.dueDate);
+    const days = Math.ceil((due - now) / 86400000);
+    const dueClass = !t.done && days < 0 ? 'task-overdue' : !t.done && days <= 7 ? 'task-soon' : '';
+    return `
+      <div class="check-row ${t.done?'done':''}">
+        <input type="checkbox" ${t.done?'checked':''} onchange="toggleTask('${t.id}')">
+        <div class="task-info">
+          <div class="task-title">${escapeHtml(t.title)}</div>
+          <div class="task-meta">
+            <span class="pill pill-muted">${escapeHtml(t.category)}</span>
+            <span class="${dueClass}">📅 ${fmtDate(t.dueDate)}${!t.done ? (days < 0 ? ` · retard ${Math.abs(days)}j` : days === 0 ? " · aujourd'hui" : ` · dans ${days}j`) : ''}</span>
+            ${t.owner ? `<span>👤 ${escapeHtml(t.owner)}</span>` : ''}
+          </div>
+        </div>
+        <button class="btn-icon" onclick="openTaskModal('${t.id}')">✎</button>
+        <button class="btn-icon danger" onclick="deleteTask('${t.id}')">🗑</button>
+      </div>
+    `;
+  }).join('');
+}
+
+function openTaskModal(id) {
+  const t = id ? data.tasks.find(x => x.id === id) : { id: uid(), title: '', category: 'Logistique', dueDate: '', owner: '', notes: '', done: false };
+  editingItem = t;
+  document.getElementById('modal-title').textContent = id ? 'Modifier tâche' : 'Nouvelle tâche';
+  document.getElementById('modal-sub').textContent = '';
+  document.getElementById('modal-body').innerHTML = `
+    <div class="form-group">
+      <label>Titre *</label>
+      <input id="t-title" value="${escapeHtml(t.title)}" required>
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label>Catégorie</label>
+        <select id="t-cat">
+          ${['Logistique','Communication','Invités','Fournisseurs','Production','Administratif','Jour J']
+            .map(c => `<option ${t.category===c?'selected':''}>${c}</option>`).join('')}
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Échéance *</label>
+        <input id="t-due" type="date" value="${t.dueDate}" required>
+      </div>
+    </div>
+    <div class="form-group">
+      <label class="optional">Responsable</label>
+      <input id="t-owner" value="${escapeHtml(t.owner||'')}" placeholder="Nom de la personne en charge">
+    </div>
+    <div class="form-group">
+      <label class="optional">Notes</label>
+      <textarea id="t-notes">${escapeHtml(t.notes||'')}</textarea>
+    </div>
+  `;
+  document.getElementById('modal-footer').innerHTML = `
+    <button class="btn btn-ghost" onclick="closeModal()">Annuler</button>
+    <button class="btn btn-primary" onclick="saveTask('${id||''}')">${id ? 'Enregistrer' : 'Créer'}</button>
+  `;
+  document.getElementById('modal-overlay').classList.add('show');
+}
+
+function saveTask(id) {
+  const t = {
+    id: id || uid(),
+    title: document.getElementById('t-title').value.trim(),
+    category: document.getElementById('t-cat').value,
+    dueDate: document.getElementById('t-due').value,
+    owner: document.getElementById('t-owner').value.trim(),
+    notes: document.getElementById('t-notes').value.trim(),
+    done: editingItem?.done || false
+  };
+  if (!t.title || !t.dueDate) { alert('Titre et échéance obligatoires'); return; }
+  const idx = data.tasks.findIndex(x => x.id === t.id);
+  if (idx >= 0) data.tasks[idx] = t;
+  else data.tasks.push(t);
+  saveData();
+  closeModal();
+  renderTasks();
+  showToast('Tâche enregistrée');
+}
+function deleteTask(id) {
+  if (!confirm('Supprimer cette tâche ?')) return;
+  data.tasks = data.tasks.filter(t => t.id !== id);
+  saveData();
+  renderTasks();
+}
+function toggleTask(id) {
+  const t = data.tasks.find(x => x.id === id);
+  if (t) { t.done = !t.done; saveData(); renderTasks(); }
+}
+function loadDefaultTasks() {
+  if (data.tasks.length > 0 && !confirm('Cela ajoutera la checklist type aux tâches existantes. Continuer ?')) return;
+  DEFAULT_TASKS.forEach(t => data.tasks.push({ ...t, id: uid() }));
+  saveData();
+  renderTasks();
+  showToast(`${DEFAULT_TASKS.length} tâches ajoutées`);
+}
+
+// ====================================================================
+// LOGISTICS
+// ====================================================================
+function renderLogistics() { renderCheckin(); }
+
+function renderCheckin() {
+  const search = (document.getElementById('checkin-search').value || '').toLowerCase();
+  const filter = document.getElementById('checkin-filter').value;
+  let list = data.guests.filter(g => g.rsvp === 'confirmé');
+  list = list.filter(g => !search || `${g.firstName} ${g.lastName} ${g.organization||''}`.toLowerCase().includes(search));
+  if (filter === 'checked') list = list.filter(g => g.checkedIn);
+  if (filter === 'not-checked') list = list.filter(g => !g.checkedIn);
+
+  const tbody = document.getElementById('checkin-tbody');
+  if (list.length === 0) {
+    tbody.innerHTML = '<tr><td colspan="6"><div class="empty"><div class="empty-icon">📋</div><div class="empty-title">Aucun invité confirmé</div></div></td></tr>';
+  } else {
+    tbody.innerHTML = list.map(g => `
+      <tr>
+        <td><input type="checkbox" ${g.checkedIn?'checked':''} onchange="toggleCheckin('${g.id}')" style="width: 20px; height: 20px; accent-color: var(--emerald);"></td>
+        <td>
+          <strong>${escapeHtml(g.firstName)} ${escapeHtml(g.lastName)}</strong>
+          ${g.dietary ? `<div style="font-size:10px; color: var(--amber); margin-top:2px;">⚠ ${escapeHtml(g.dietary)}</div>` : ''}
+        </td>
+        <td>${escapeHtml(g.organization||'—')}</td>
+        <td>${g.plusOne ? '✓ '+escapeHtml(g.plusOneName||'+1') : '—'}</td>
+        <td style="font-size: 11px; color: var(--text-soft);">${g.checkedInAt ? new Date(g.checkedInAt).toLocaleTimeString('fr-FR',{hour:'2-digit',minute:'2-digit'}) : '—'}</td>
+        <td style="font-size: 11px; color: var(--text-muted);">${escapeHtml(g.notes||'')}</td>
+      </tr>
+    `).join('');
+  }
+
+  const confirmed = data.guests.filter(g => g.rsvp === 'confirmé');
+  const checked = confirmed.filter(g => g.checkedIn);
+  const totalExpected = confirmed.length + confirmed.filter(g => g.plusOne).length;
+  const totalArrived = checked.length + checked.filter(g => g.plusOne).length;
+  document.getElementById('checkin-stats').innerHTML = `
+    <strong style="color: var(--emerald);">${checked.length}</strong> / ${confirmed.length} pointés ·
+    <strong>${totalArrived}</strong> / ${totalExpected} personnes ·
+    ${confirmed.length > 0 ? Math.round(checked.length/confirmed.length*100) : 0}% présence
+  `;
+}
+
+function toggleCheckin(id) {
+  const g = data.guests.find(x => x.id === id);
+  if (g) {
+    g.checkedIn = !g.checkedIn;
+    g.checkedInAt = g.checkedIn ? new Date().toISOString() : null;
+    saveData();
+    renderCheckin();
+  }
+}
+
+function generateBadges() {
+  const list = data.guests.filter(g => g.rsvp === 'confirmé');
+  if (list.length === 0) { alert('Aucun invité confirmé'); return; }
+  const area = document.getElementById('badge-print-area');
+  let badges = '';
+  list.forEach(g => {
+    badges += `
+      <div class="badge-print">
+        <div>
+          <div class="badge-event">QVEMA Amplify · 4 juin 2026</div>
+          <div class="badge-name">${escapeHtml(g.firstName)} ${escapeHtml(g.lastName)}</div>
+          ${g.organization ? `<div class="badge-org">${escapeHtml(g.organization)}</div>` : ''}
+        </div>
+        <span class="badge-cat">${escapeHtml(g.category||'INVITÉ')}</span>
+      </div>
+    `;
+    if (g.plusOne && g.plusOneName) {
+      badges += `
+        <div class="badge-print">
+          <div>
+            <div class="badge-event">QVEMA Amplify · 4 juin 2026</div>
+            <div class="badge-name">${escapeHtml(g.plusOneName)}</div>
+            <div class="badge-org">Invité de ${escapeHtml(g.firstName)} ${escapeHtml(g.lastName)}</div>
+          </div>
+          <span class="badge-cat">ACCOMPAGNANT</span>
+        </div>
+      `;
+    }
+  });
+  area.innerHTML = `
+    <div style="margin: 16px 0; display: flex; gap: 8px; align-items: center;">
+      <button class="btn btn-primary btn-sm" onclick="window.print()">🖨 Imprimer</button>
+      <span style="font-size: 12px; color: var(--text-soft);">${list.length} invités · format A4 recommandé</span>
+    </div>
+    <div class="badge-grid">${badges}</div>
+  `;
+}
+
+// ====================================================================
+// DATA
+// ====================================================================
+function renderDataPanel() {
+  const sizeBytes = new Blob([JSON.stringify(data)]).size;
+  document.getElementById('data-stats').innerHTML = `
+    <div style="display: grid; gap: 10px;">
+      <div style="display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid var(--line-2); font-size: 13px;">
+        <span style="color: var(--text-soft);">Fournisseurs</span><strong>${data.suppliers.length}</strong>
+      </div>
+      <div style="display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid var(--line-2); font-size: 13px;">
+        <span style="color: var(--text-soft);">Invités</span><strong>${data.guests.length}</strong>
+      </div>
+      <div style="display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid var(--line-2); font-size: 13px;">
+        <span style="color: var(--text-soft);">Tâches</span><strong>${data.tasks.length}</strong>
+      </div>
+      <div style="display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid var(--line-2); font-size: 13px;">
+        <span style="color: var(--text-soft);">Taille des données</span><strong>${(sizeBytes/1024).toFixed(1)} Ko</strong>
+      </div>
+      <div style="display: flex; justify-content: space-between; padding: 8px 0; font-size: 13px;">
+        <span style="color: var(--text-soft);">Dernière sauvegarde</span><strong>${data.settings.lastBackup ? new Date(data.settings.lastBackup).toLocaleString('fr-FR') : 'Jamais'}</strong>
+      </div>
+    </div>
+  `;
+}
+
+function exportAll() {
+  const exportData = { ...data, exportedAt: new Date().toISOString(), version: 2 };
+  const json = JSON.stringify(exportData, null, 2);
+  const filename = `qvema-amplify-backup-${new Date().toISOString().slice(0,10)}.json`;
+  downloadFile(filename, json, 'application/json');
+  data.settings.lastBackup = new Date().toISOString();
+  saveData();
+  if (document.getElementById('panel-data').classList.contains('active')) renderDataPanel();
+  showToast('Sauvegarde téléchargée');
+}
+
+function importAll(event) {
+  const file = event.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = e => {
+    try {
+      const imported = JSON.parse(e.target.result);
+      if (!imported.guests && !imported.suppliers) throw new Error('Format invalide');
+      if (!confirm('Cela remplacera toutes les données actuelles. Continuer ?')) return;
+      data = Object.assign({}, JSON.parse(JSON.stringify(DEFAULT_DATA)), imported);
+      saveData();
+      showToast('Sauvegarde restaurée');
+      renderDataPanel();
+      renderDashboard();
+    } catch (err) {
+      alert('Erreur : ' + err.message);
+    }
+    event.target.value = '';
+  };
+  reader.readAsText(file);
+}
+
+function resetAll() {
+  if (!confirm('⚠ ATTENTION : cela supprimera TOUTES les données. Continuer ?')) return;
+  if (!confirm('Êtes-vous absolument sûr ? Cette action est irréversible.')) return;
+  localStorage.removeItem(STORAGE_KEY);
+  data = JSON.parse(JSON.stringify(DEFAULT_DATA));
+  saveData();
+  showToast('Données réinitialisées');
+  renderDashboard();
+  renderDataPanel();
+}
+
+// ====================================================================
+// MODAL & UTILS
+// ====================================================================
+function closeModal() {
+  document.getElementById('modal-overlay').classList.remove('show');
+  editingItem = null;
+}
+document.getElementById('modal-overlay').addEventListener('click', e => {
+  if (e.target.id === 'modal-overlay') closeModal();
+});
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape') closeModal();
+});
+
+function downloadFile(filename, content, mime) {
+  const blob = new Blob([content], { type: mime });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = filename;
+  a.click();
+  URL.revokeObjectURL(url);
+}
+
+function showToast(msg) {
+  document.querySelectorAll('.toast').forEach(t => t.remove());
+  const div = document.createElement('div');
+  div.className = 'toast';
+  div.innerHTML = `<span>✓</span> ${escapeHtml(msg)}`;
+  document.body.appendChild(div);
+  setTimeout(() => div.remove(), 2500);
+}
+
+// ============ INIT ============
+renderDashboard();
+</script>
+</body>
+</html>
