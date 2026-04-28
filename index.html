@@ -84,23 +84,18 @@
   .brand {
     display: flex;
     align-items: center;
-    gap: 12px;
+    justify-content: center;
     padding: 0 8px 24px;
     border-bottom: 1px solid rgba(255,255,255,.08);
     margin-bottom: 16px;
   }
-  .brand-mark {
-    width: 40px; height: 40px;
-    background: linear-gradient(135deg, var(--gold) 0%, var(--gold-2) 100%);
-    border-radius: 10px;
-    display: flex; align-items: center; justify-content: center;
-    color: var(--ink);
-    font-weight: 800;
-    font-size: 16px;
-    box-shadow: 0 4px 12px rgba(212,175,55,.3);
+  .brand-logo {
+    max-width: 100%;
+    height: auto;
+    max-height: 88px;
+    object-fit: contain;
+    display: block;
   }
-  .brand-text .brand-title { font-weight: 700; font-size: 14px; letter-spacing: -0.01em; }
-  .brand-text .brand-sub { font-size: 11px; color: rgba(255,255,255,.5); margin-top: 1px; letter-spacing: 0.2px; }
 
   .nav-label {
     font-size: 10px;
@@ -760,11 +755,7 @@
   <!-- ============ SIDEBAR ============ -->
   <aside class="sidebar" id="sidebar">
     <div class="brand">
-      <div class="brand-mark">QA</div>
-      <div class="brand-text">
-        <div class="brand-title">QVEMA Amplify</div>
-        <div class="brand-sub">Event OS · 2026</div>
-      </div>
+      <img src="logo.png" alt="QVEMA Amplify" class="brand-logo">
     </div>
 
     <div class="nav-label">Pilotage</div>
