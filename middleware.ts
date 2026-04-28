@@ -37,6 +37,12 @@ export default async function middleware(request: Request): Promise<Response | u
   }
 
   if (!isAuthed) {
+    if (url.pathname.startsWith('/api/')) {
+      return new Response(JSON.stringify({ error: 'unauthorized' }), {
+        status: 401,
+        headers: { 'content-type': 'application/json' },
+      });
+    }
     return new Response(renderLogin(), {
       status: 200,
       headers: { 'content-type': 'text/html; charset=utf-8' },

@@ -1407,6 +1407,52 @@ function loadData() {
 function saveData() { localStorage.setItem(STORAGE_KEY, JSON.stringify(data)); }
 function uid() { return Date.now().toString(36) + Math.random().toString(36).substr(2, 5); }
 
+// ============ API: guests are persisted server-side via /api/guests ============
+const apiGuests = {
+  async list() {
+    const r = await fetch('/api/guests', { credentials: 'same-origin' });
+    if (!r.ok) throw new Error('HTTP ' + r.status);
+    return r.json();
+  },
+  async create(payload) {
+    const r = await fetch('/api/guests', {
+      method: 'POST',
+      credentials: 'same-origin',
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify(payload)
+    });
+    if (!r.ok) throw new Error('HTTP ' + r.status + ': ' + await r.text());
+    return r.json();
+  },
+  async update(id, payload) {
+    const r = await fetch('/api/guests?id=' + encodeURIComponent(id), {
+      method: 'PATCH',
+      credentials: 'same-origin',
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify(payload)
+    });
+    if (!r.ok) throw new Error('HTTP ' + r.status + ': ' + await r.text());
+    return r.json();
+  },
+  async remove(id) {
+    const r = await fetch('/api/guests?id=' + encodeURIComponent(id), {
+      method: 'DELETE',
+      credentials: 'same-origin'
+    });
+    if (!r.ok) throw new Error('HTTP ' + r.status + ': ' + await r.text());
+  }
+};
+async function loadGuestsFromAPI() {
+  try {
+    const list = await apiGuests.list();
+    data.guests = list;
+  } catch (err) {
+    console.error('loadGuestsFromAPI failed', err);
+    showToast('⚠ Impossible de charger les invités : ' + err.message);
+    data.guests = data.guests || [];
+  }
+}
+
 // ============ FORMATTING ============
 function fmtMoney(n, decimals) {
   decimals = decimals === undefined ? 0 : decimals;
@@ -2119,9 +2165,8 @@ function openGuestModal(id) {
   document.getElementById('modal-overlay').classList.add('show');
 }
 
-function saveGuest(id) {
-  const g = {
-    id: id || uid(),
+async function saveGuest(id) {
+  const payload = {
     firstName: document.getElementById('g-first').value.trim(),
     lastName: document.getElementById('g-last').value.trim(),
     email: document.getElementById('g-email').value.trim(),
@@ -2132,32 +2177,51 @@ function saveGuest(id) {
     plusOne: document.getElementById('g-plus').checked,
     plusOneName: document.getElementById('g-plusname').value.trim(),
     dietary: document.getElementById('g-diet').value.trim(),
-    notes: document.getElementById('g-notes').value.trim(),
-    invitationSent: editingItem?.invitationSent || false,
-    invitationSentAt: editingItem?.invitationSentAt || null,
-    checkedIn: editingItem?.checkedIn || false,
-    checkedInAt: editingItem?.checkedInAt || null
+    notes: document.getElementById('g-notes').value.trim()
   };
-  if (!g.firstName || !g.lastName) { alert('Prénom et nom obligatoires'); return; }
-  const idx = data.guests.findIndex(x => x.id === g.id);
-  if (idx >= 0) data.guests[idx] = g;
-  else data.guests.push(g);
-  saveData();
-  closeModal();
-  renderGuests();
-  showToast('Invité enregistré');
+  if (!payload.firstName || !payload.lastName) { alert('Prénom et nom obligatoires'); return; }
+  try {
+    if (id) {
+      const updated = await apiGuests.update(id, payload);
+      const idx = data.guests.findIndex(x => x.id === id);
+      if (idx >= 0) data.guests[idx] = updated;
+    } else {
+      const created = await apiGuests.create(payload);
+      const newRows = Array.isArray(created) ? created : [created];
+      data.guests.push(...newRows);
+    }
+    closeModal();
+    renderGuests();
+    showToast('Invité enregistré');
+  } catch (err) {
+    alert('Erreur enregistrement : ' + err.message);
+  }
 }
-function deleteGuest(id) {
+async function deleteGuest(id) {
   const g = data.guests.find(x => x.id === id);
   if (!g) return;
   if (!confirm(`Supprimer ${g.firstName} ${g.lastName} ?`)) return;
-  data.guests = data.guests.filter(g => g.id !== id);
-  saveData();
-  renderGuests();
+  try {
+    await apiGuests.remove(id);
+    data.guests = data.guests.filter(g => g.id !== id);
+    renderGuests();
+  } catch (err) {
+    alert('Erreur suppression : ' + err.message);
+  }
 }
-function updateGuestRsvp(id, value) {
+async function updateGuestRsvp(id, value) {
   const g = data.guests.find(x => x.id === id);
-  if (g) { g.rsvp = value; saveData(); renderGuests(); }
+  if (!g) return;
+  const previous = g.rsvp;
+  g.rsvp = value;
+  renderGuests();
+  try {
+    await apiGuests.update(id, { rsvp: value });
+  } catch (err) {
+    g.rsvp = previous;
+    renderGuests();
+    alert('Erreur RSVP : ' + err.message);
+  }
 }
 function toggleAllGuests(checkbox) {
   document.querySelectorAll('.guest-check').forEach(c => c.checked = checkbox.checked);
@@ -2175,7 +2239,7 @@ function importGuestsCSV(event) {
   const file = event.target.files[0];
   if (!file) return;
   const reader = new FileReader();
-  reader.onload = e => {
+  reader.onload = async e => {
     const text = e.target.result;
     const lines = text.split(/\r?\n/).filter(l => l.trim());
     if (lines.length < 2) { alert('Fichier vide ou invalide'); return; }
@@ -2202,15 +2266,14 @@ function importGuestsCSV(event) {
       phone: findIdx(['tél','tel','phone']),
       cat: findIdx(['catég','categ','type'])
     };
-    let added = 0;
+    const newRows = [];
     for (let i = 1; i < lines.length; i++) {
       const cols = parseLine(lines[i]);
       const firstName = idx.first >= 0 ? cols[idx.first] : '';
       const lastName = idx.last >= 0 ? cols[idx.last] : '';
       const email = idx.email >= 0 ? cols[idx.email] : '';
       if (!firstName && !lastName && !email) continue;
-      data.guests.push({
-        id: uid(),
+      newRows.push({
         firstName: (firstName||'').trim(),
         lastName: (lastName||'').trim(),
         email: (email||'').trim(),
@@ -2221,15 +2284,18 @@ function importGuestsCSV(event) {
         plusOne: false,
         plusOneName: '',
         dietary: '',
-        notes: '',
-        invitationSent: false,
-        checkedIn: false
+        notes: ''
       });
-      added++;
     }
-    saveData();
-    renderGuests();
-    showToast(`${added} invité(s) importé(s)`);
+    if (newRows.length === 0) { alert('Aucune ligne valide'); event.target.value = ''; return; }
+    try {
+      const created = await apiGuests.create(newRows);
+      data.guests.push(...(Array.isArray(created) ? created : [created]));
+      renderGuests();
+      showToast(`${newRows.length} invité(s) importé(s)`);
+    } catch (err) {
+      alert('Erreur import : ' + err.message);
+    }
     event.target.value = '';
   };
   reader.readAsText(file, 'UTF-8');
@@ -2275,16 +2341,18 @@ function buildEmail(guest) {
   };
 }
 
-function sendInviteToGuest(id) {
+async function sendInviteToGuest(id) {
   const g = data.guests.find(x => x.id === id);
   if (!g || !g.email) { alert('Email manquant'); return; }
   const { subject, body } = buildEmail(g);
   const url = `mailto:${encodeURIComponent(g.email)}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
   window.location.href = url;
+  const sentAt = new Date().toISOString();
   g.invitationSent = true;
-  g.invitationSentAt = new Date().toISOString();
-  saveData();
+  g.invitationSentAt = sentAt;
   setTimeout(renderGuests, 500);
+  try { await apiGuests.update(id, { invitationSent: true, invitationSentAt: sentAt }); }
+  catch (err) { console.error('mark invitation failed', err); }
 }
 
 function bulkInvite() {
@@ -2302,7 +2370,6 @@ function bulkInvite() {
   const sendNext = () => {
     if (i >= list.length) {
       progressEl.innerHTML = `<div class="alert alert-emerald"><span class="alert-icon">✓</span><div><strong>${list.length} email(s) préparé(s)</strong> — vérifiez votre client mail</div></div>`;
-      saveData();
       return;
     }
     const g = list[i];
@@ -2310,8 +2377,11 @@ function bulkInvite() {
     const { subject, body } = buildEmail(g);
     const url = `mailto:${encodeURIComponent(g.email)}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
     window.open(url, '_blank');
+    const sentAt = new Date().toISOString();
     g.invitationSent = true;
-    g.invitationSentAt = new Date().toISOString();
+    g.invitationSentAt = sentAt;
+    apiGuests.update(g.id, { invitationSent: true, invitationSentAt: sentAt })
+      .catch(err => console.error('mark invitation failed for', g.id, err));
     i++;
     setTimeout(sendNext, 1500);
   };
@@ -2668,13 +2738,20 @@ function renderCheckin() {
   `;
 }
 
-function toggleCheckin(id) {
+async function toggleCheckin(id) {
   const g = data.guests.find(x => x.id === id);
-  if (g) {
-    g.checkedIn = !g.checkedIn;
-    g.checkedInAt = g.checkedIn ? new Date().toISOString() : null;
-    saveData();
+  if (!g) return;
+  const previous = { checkedIn: g.checkedIn, checkedInAt: g.checkedInAt };
+  g.checkedIn = !g.checkedIn;
+  g.checkedInAt = g.checkedIn ? new Date().toISOString() : null;
+  renderCheckin();
+  try {
+    await apiGuests.update(id, { checkedIn: g.checkedIn, checkedInAt: g.checkedInAt });
+  } catch (err) {
+    g.checkedIn = previous.checkedIn;
+    g.checkedInAt = previous.checkedInAt;
     renderCheckin();
+    alert('Erreur pointage : ' + err.message);
   }
 }
 
@@ -2821,6 +2898,10 @@ function showToast(msg) {
 
 // ============ INIT ============
 renderDashboard();
+loadGuestsFromAPI().then(() => {
+  renderDashboard();
+  renderGuests();
+});
 </script>
 </body>
 </html>
