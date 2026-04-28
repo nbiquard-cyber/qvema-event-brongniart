@@ -725,6 +725,16 @@
   }
 
   /* ================= MOBILE ================= */
+  .sidebar-backdrop {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,.5);
+    z-index: 49;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .sidebar-backdrop.show { display: block; }
+
   @media (max-width: 900px) {
     .app { grid-template-columns: 1fr; }
     aside.sidebar {
@@ -739,11 +749,51 @@
     .menu-btn { display: inline-flex !important; }
     .form-row, .form-row-3 { grid-template-columns: 1fr; }
     .content { padding: 20px; }
-    .topbar { padding: 14px 20px; }
+    .topbar {
+      padding: 14px 20px;
+      padding-top: max(14px, env(safe-area-inset-top));
+    }
     .hero { padding: 24px; }
     .hero-title { font-size: 26px; }
     .donut-wrap { flex-direction: column; align-items: stretch; }
     .bar-item { grid-template-columns: 100px 1fr auto; }
+    /* Tables horizontally scrollable on touch */
+    .table-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+    .table-wrap table { min-width: 560px; }
+    /* Bigger touch targets */
+    .nav-item { padding: 12px 14px; }
+    .btn { min-height: 38px; }
+  }
+
+  @media (max-width: 480px) {
+    .content { padding: 14px 12px; }
+    .topbar { padding: 12px 14px; gap: 8px; }
+    .topbar > div:first-child { gap: 8px !important; min-width: 0; }
+    .breadcrumb { font-size: 12px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .topbar-actions .btn { padding: 6px 10px; font-size: 11px; }
+    .hero { padding: 18px; border-radius: 14px; }
+    .hero-tag { font-size: 11px; }
+    .hero-title { font-size: 22px; line-height: 1.15; }
+    .hero-subtitle { font-size: 13px; }
+    .hero-meta { gap: 12px; margin-top: 16px; }
+    .hero-meta-item { font-size: 12px; }
+    .stats-grid { grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 10px; }
+    .stat-card { padding: 14px; }
+    .stat-value { font-size: 22px; }
+    .stat-label { font-size: 11px; }
+    .card { padding: 16px; border-radius: 12px; }
+    .card-header { margin-bottom: 14px; }
+    .page-header { margin-bottom: 18px; }
+    .page-header h1 { font-size: 22px; }
+    th, td { padding: 8px 10px !important; font-size: 12px; }
+    .modal { max-width: calc(100vw - 24px); margin: 12px; max-height: calc(100vh - 24px); overflow-y: auto; }
+    .badge-grid { grid-template-columns: 1fr 1fr !important; }
+    .countdown-grid { gap: 6px; }
+    .bar-item { grid-template-columns: 80px 1fr auto; font-size: 12px; }
+    .toolbar { flex-wrap: wrap; gap: 8px; }
+    .toolbar input, .toolbar select { font-size: 14px; }
+    /* iOS: prevent zoom on focus by ensuring inputs are ≥16px */
+    input, select, textarea { font-size: 16px !important; }
   }
   .menu-btn { display: none; }
 </style>
@@ -782,12 +832,13 @@
       <div class="countdown-event"><strong>Jeudi 4 juin 2026</strong> · 19h00<br>Palais Brongniart, Paris</div>
     </div>
   </aside>
+  <div class="sidebar-backdrop" id="sidebar-backdrop" onclick="document.getElementById('sidebar').classList.remove('open');this.classList.remove('show');"></div>
 
   <!-- ============ MAIN ============ -->
   <main>
     <div class="topbar">
       <div style="display: flex; align-items: center; gap: 12px;">
-        <button class="btn btn-ghost btn-sm menu-btn" onclick="document.getElementById('sidebar').classList.toggle('open')">☰</button>
+        <button class="btn btn-ghost btn-sm menu-btn" onclick="document.getElementById('sidebar').classList.toggle('open');document.getElementById('sidebar-backdrop').classList.toggle('show');">☰</button>
         <div class="breadcrumb">
           QVEMA Amplify · <strong id="breadcrumb-current">Tableau de bord</strong>
         </div>
@@ -1409,6 +1460,7 @@ document.querySelectorAll('.nav-item').forEach(btn => {
     document.getElementById('panel-' + tab).classList.add('active');
     document.getElementById('breadcrumb-current').textContent = TAB_NAMES[tab];
     document.getElementById('sidebar').classList.remove('open');
+    document.getElementById('sidebar-backdrop').classList.remove('show');
     if (tab === 'dashboard') renderDashboard();
     if (tab === 'suppliers') renderSuppliers();
     if (tab === 'guests') renderGuests();
