@@ -1,3 +1,5 @@
+export const config = { runtime: 'edge' };
+
 const SUPABASE_TABLE = 'guests';
 
 const FIELD_MAP: Record<string, string> = {
