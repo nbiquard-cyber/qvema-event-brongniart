@@ -64,6 +64,15 @@ export default async function handler(request: Request): Promise<Response> {
   try {
     const url = new URL(request.url);
 
+    if (url.searchParams.get('debug') === '1') {
+      return jsonResponse({
+        ok: true,
+        method: request.method,
+        hasUrl: Boolean(process.env.SUPABASE_URL),
+        hasKey: Boolean(process.env.SUPABASE_SECRET_KEY),
+      });
+    }
+
     if (request.method === 'GET') {
       const res = await supabase(`/${SUPABASE_TABLE}?select=*&order=created_at.asc`);
       if (!res.ok) return jsonResponse({ error: await res.text() }, 502);
