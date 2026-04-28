@@ -1,5 +1,5 @@
 export const config = {
-  matcher: '/((?!_vercel|favicon\\.ico).*)',
+  matcher: '/((?!_vercel|favicon\\.ico|logo\\.png|login-bg\\.jpg).*)',
 };
 
 const COOKIE_NAME = 'qvema_auth';
@@ -67,33 +67,46 @@ function renderLogin(error?: string): string {
   html, body { margin: 0; padding: 0; }
   body {
     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-    background: #0b0d10;
+    background: #0b0d10 url('/login-bg.jpg') center/cover no-repeat fixed;
     color: #fff;
     min-height: 100vh;
     display: flex;
     align-items: center;
     justify-content: center;
     padding: 24px;
+    position: relative;
+  }
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background: linear-gradient(180deg, rgba(11,13,16,.55) 0%, rgba(11,13,16,.75) 100%);
+    z-index: 0;
   }
   .card {
-    background: #14171b;
-    border: 1px solid rgba(255,255,255,.08);
+    position: relative;
+    z-index: 1;
+    background: rgba(20,23,27,.85);
+    backdrop-filter: blur(18px);
+    -webkit-backdrop-filter: blur(18px);
+    border: 1px solid rgba(255,255,255,.1);
     border-radius: 16px;
-    padding: 40px 32px;
+    padding: 36px 32px 32px;
     width: 100%;
     max-width: 380px;
-    box-shadow: 0 20px 60px rgba(0,0,0,.4);
+    box-shadow: 0 20px 60px rgba(0,0,0,.5);
   }
-  h1 {
-    font-size: 18px;
-    font-weight: 600;
-    margin: 0 0 4px;
-    letter-spacing: -0.01em;
-  }
-  .sub {
-    color: rgba(255,255,255,.5);
-    font-size: 13px;
+  .brand {
+    display: flex;
+    justify-content: center;
     margin-bottom: 28px;
+  }
+  .brand-logo {
+    max-width: 200px;
+    height: auto;
+    max-height: 110px;
+    object-fit: contain;
+    display: block;
   }
   label {
     display: block;
@@ -144,8 +157,7 @@ function renderLogin(error?: string): string {
 </head>
 <body>
   <form class="card" method="POST" action="/login">
-    <h1>QVEMA Amplify Event</h1>
-    <div class="sub">Accès restreint</div>
+    <div class="brand"><img src="/logo.png" alt="QVEMA Amplify" class="brand-logo"></div>
     ${errorBlock}
     <label for="pw">Mot de passe</label>
     <input id="pw" type="password" name="password" autofocus required>
