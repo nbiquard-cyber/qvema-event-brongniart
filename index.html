@@ -1056,19 +1056,23 @@
         <div class="card">
           <div class="card-header">
             <div>
-              <div class="card-title">Campagne Resend (recommandé)</div>
-              <div class="card-sub">Email HTML stylé envoyé automatiquement, avec boutons RSVP qui mettent à jour la base au clic. Édition du visuel sur <strong>Resend → Templates</strong>.</div>
+              <div class="card-title">Campagne ActiveCampaign (recommandé)</div>
+              <div class="card-sub">Pousse vos invités comme contacts AC dans la liste <strong>QVEMA Brongniart 2026</strong> avec leurs URLs RSVP uniques pré-calculées. Vous designez et envoyez la campagne depuis AC.</div>
             </div>
           </div>
           <div class="toolbar" style="margin-bottom: 0;">
-            <select id="campaign-target">
-              <option value="not-sent">Non encore invités</option>
-              <option value="pending">RSVP en attente (relance)</option>
-              <option value="all">Tous les invités avec email</option>
-            </select>
-            <button class="btn btn-gold" onclick="sendCampaign()">📧 Envoyer la campagne</button>
+            <button class="btn btn-gold" onclick="syncToActiveCampaign()">⇅ Synchroniser avec ActiveCampaign</button>
+            <a href="https://qvemaamplify.activehosted.com/app/contacts" target="_blank" rel="noopener" class="btn btn-ghost btn-sm">↗ Ouvrir ActiveCampaign</a>
           </div>
-          <div id="campaign-progress" style="margin-top: 12px;"></div>
+          <div id="ac-progress" style="margin-top: 12px;"></div>
+          <div style="margin-top: 14px; padding: 12px 14px; background: var(--paper-2); border-radius: 8px; font-size: 12.5px; line-height: 1.55; color: var(--text-soft);">
+            <strong>Une fois synchronisé</strong>, dans AC :<br>
+            1. <strong>Campaigns</strong> → Create campaign → choisissez la liste <code>QVEMA Brongniart 2026</code><br>
+            2. Designez l'email visuellement, insérez 2 boutons :<br>
+            &nbsp;&nbsp;&nbsp;• <em>"Je confirme ma présence"</em> → URL : <code>%RSVP_YES_URL%</code><br>
+            &nbsp;&nbsp;&nbsp;• <em>"Je ne pourrai pas"</em> → URL : <code>%RSVP_NO_URL%</code><br>
+            3. Envoyez. Au clic des boutons, le RSVP se met à jour automatiquement dans cette app.
+          </div>
         </div>
 
         <div class="card">
@@ -2373,32 +2377,24 @@ async function sendInviteToGuest(id) {
   catch (err) { console.error('mark invitation failed', err); }
 }
 
-async function sendCampaign() {
-  const target = document.getElementById('campaign-target').value;
-  const progressEl = document.getElementById('campaign-progress');
-  const candidates = data.guests.filter(g => {
-    if (!g.email) return false;
-    if (target === 'not-sent') return !g.invitationSent;
-    if (target === 'pending') return (g.rsvp === 'en attente' || g.rsvp === 'relancer' || !g.rsvp);
-    return true;
-  });
-  if (candidates.length === 0) { alert('Aucun invité correspondant avec un email valide'); return; }
-  if (!confirm(`Envoyer la campagne à ${candidates.length} invité(s) via Resend ? Les emails partiront immédiatement.`)) return;
+async function syncToActiveCampaign() {
+  const progressEl = document.getElementById('ac-progress');
+  const withEmail = data.guests.filter(g => g.email && g.email.includes('@'));
+  if (withEmail.length === 0) { alert('Aucun invité avec un email valide à synchroniser'); return; }
+  if (!confirm(`Pousser ${withEmail.length} invité(s) vers ActiveCampaign (liste QVEMA Brongniart 2026) ?`)) return;
 
-  progressEl.innerHTML = `<div class="alert alert-indigo"><span class="alert-icon">✉</span><div>Envoi en cours pour <strong>${candidates.length}</strong> invité(s)…</div></div>`;
+  progressEl.innerHTML = `<div class="alert alert-indigo"><span class="alert-icon">⇅</span><div>Synchronisation en cours pour <strong>${withEmail.length}</strong> contact(s)… cela peut prendre 1 à 3 minutes selon le volume.</div></div>`;
   try {
-    const res = await fetch('/api/send-invitations', {
+    const res = await fetch('/api/sync-to-activecampaign', {
       method: 'POST',
       credentials: 'same-origin',
       headers: { 'content-type': 'application/json' },
-      body: JSON.stringify({ target })
+      body: JSON.stringify({})
     });
     const out = await res.json();
     if (!res.ok) throw new Error(out.error || ('HTTP ' + res.status));
-    progressEl.innerHTML = `<div class="alert alert-emerald"><span class="alert-icon">✓</span><div><strong>${out.sent}/${out.total} envoyé(s)</strong>${out.failed ? ` · ${out.failed} échec(s)` : ''} · les invités vont recevoir leur email avec boutons RSVP.</div></div>`;
-    await loadGuestsFromAPI();
-    renderGuests();
-    renderDashboard();
+    const failures = (out.results || []).filter(r => r.status === 'failed').slice(0, 3).map(r => `${r.email}: ${r.error}`).join(' · ');
+    progressEl.innerHTML = `<div class="alert ${out.failed ? 'alert-amber' : 'alert-emerald'}"><span class="alert-icon">✓</span><div><strong>${out.synced}/${out.total} synchronisés</strong>${out.failed ? ` · ${out.failed} échec(s)${failures ? ' — ' + escapeHtml(failures) : ''}` : ''}.<br>Allez maintenant dans <a href="https://qvemaamplify.activehosted.com/campaign/list" target="_blank" rel="noopener" style="color: inherit;">ActiveCampaign → Campaigns</a> pour designer et envoyer.</div></div>`;
   } catch (err) {
     progressEl.innerHTML = `<div class="alert alert-rose"><span class="alert-icon">!</span><div>Erreur : ${escapeHtml(err.message)}</div></div>`;
   }
