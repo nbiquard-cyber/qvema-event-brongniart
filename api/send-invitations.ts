@@ -146,15 +146,19 @@ export default async function handler(request: Request): Promise<Response> {
       const yesUrl = rsvpUrl(siteUrl, guestId, 'oui', yesToken);
       const noUrl = rsvpUrl(siteUrl, guestId, 'non', noToken);
 
+      const guestName = firstName
+        ? lastName
+          ? `${firstName} ${lastName}`
+          : firstName
+        : 'Madame, Monsieur';
+
       const out = await sendOne({
         apiKey,
         from,
         templateId,
         to: email,
         variables: {
-          FIRST_NAME: firstName || 'Madame, Monsieur',
-          LAST_NAME: lastName,
-          FULL_NAME: [firstName, lastName].filter(Boolean).join(' '),
+          GUEST_NAME: guestName,
           RSVP_YES_URL: yesUrl,
           RSVP_NO_URL: noUrl,
         },
