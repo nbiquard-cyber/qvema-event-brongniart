@@ -34,8 +34,87 @@ async function supabasePatch(id: string, payload: Record<string, unknown>): Prom
   });
 }
 
-function htmlPage(opts: { title: string; heading: string; message: string; tone: 'success' | 'error' | 'info' }): Response {
+const EVENT = {
+  title: 'QVEMA Amplify · Soirée de lancement',
+  location: 'Palais Brongniart, 16 Place de la Bourse, 75002 Paris',
+  description:
+    "Soirée de lancement de la plateforme QVEMA Amplify.\\n\\n19h00 — Cocktail d'accueil\\n20h00 — Prises de parole : Michèle Benzeno, Arthur Essebag, Eric Larchevêque, Marc Simoncini, Alice Lhabouz, Jean-Michel Karam, Nicolas Dufourcq (BPI France) et Main Partner.",
+  startUtc: '20260604T170000Z',
+  endUtc: '20260604T210000Z',
+};
+
+function buildIcs(): string {
+  return [
+    'BEGIN:VCALENDAR',
+    'VERSION:2.0',
+    'PRODID:-//QVEMA Amplify//Event//FR',
+    'CALSCALE:GREGORIAN',
+    'METHOD:PUBLISH',
+    'BEGIN:VEVENT',
+    'UID:qvema-amplify-brongniart-2026@qvema-event-brongniart.vercel.app',
+    `DTSTAMP:${new Date().toISOString().replace(/[-:]/g, '').replace(/\.\d{3}/, '')}`,
+    `DTSTART:${EVENT.startUtc}`,
+    `DTEND:${EVENT.endUtc}`,
+    `SUMMARY:${EVENT.title}`,
+    `LOCATION:${EVENT.location.replace(/,/g, '\\,')}`,
+    `DESCRIPTION:${EVENT.description}`,
+    'END:VEVENT',
+    'END:VCALENDAR',
+    '',
+  ].join('\r\n');
+}
+
+function icsDataUri(): string {
+  const ics = buildIcs();
+  const utf8 = new TextEncoder().encode(ics);
+  let bin = '';
+  for (let i = 0; i < utf8.length; i++) bin += String.fromCharCode(utf8[i]);
+  return `data:text/calendar;charset=utf-8;base64,${btoa(bin)}`;
+}
+
+function googleCalendarUrl(): string {
+  const params = new URLSearchParams({
+    action: 'TEMPLATE',
+    text: EVENT.title,
+    dates: `${EVENT.startUtc}/${EVENT.endUtc}`,
+    location: EVENT.location,
+    details: EVENT.description.replace(/\\n/g, '\n'),
+  });
+  return `https://calendar.google.com/calendar/render?${params.toString()}`;
+}
+
+function outlookCalendarUrl(): string {
+  const startIso = '2026-06-04T17:00:00Z';
+  const endIso = '2026-06-04T21:00:00Z';
+  const params = new URLSearchParams({
+    rru: 'addevent',
+    path: '/calendar/action/compose',
+    subject: EVENT.title,
+    startdt: startIso,
+    enddt: endIso,
+    location: EVENT.location,
+    body: EVENT.description.replace(/\\n/g, '\n'),
+  });
+  return `https://outlook.live.com/calendar/0/deeplink/compose?${params.toString()}`;
+}
+
+function htmlPage(opts: {
+  title: string;
+  heading: string;
+  message: string;
+  tone: 'success' | 'error' | 'info';
+  calendar?: boolean;
+}): Response {
   const accent = opts.tone === 'success' ? '#10b981' : opts.tone === 'error' ? '#ef4444' : '#d4af37';
+  const calendarBlock = opts.calendar
+    ? `
+    <div class="cal">
+      <div class="cal-label">Ajoutez l'événement à votre agenda</div>
+      <a class="cal-btn cal-btn-primary" href="${icsDataUri()}" download="qvema-amplify-brongniart.ics">📅 Apple / Outlook (fichier .ics)</a>
+      <a class="cal-btn" href="${googleCalendarUrl()}" target="_blank" rel="noopener">Google Calendar</a>
+      <a class="cal-btn" href="${outlookCalendarUrl()}" target="_blank" rel="noopener">Outlook web</a>
+    </div>`
+    : '';
   const body = `<!DOCTYPE html>
 <html lang="fr"><head>
 <meta charset="utf-8">
@@ -52,7 +131,13 @@ function htmlPage(opts: { title: string; heading: string; message: string; tone:
   .icon { width: 56px; height: 56px; border-radius: 50%; background: ${accent}22; border: 2px solid ${accent}; display: inline-flex; align-items: center; justify-content: center; font-size: 28px; color: ${accent}; margin-bottom: 18px; }
   h1 { font-size: 22px; font-weight: 600; margin: 0 0 8px; letter-spacing: -0.01em; }
   p { color: rgba(255,255,255,.7); font-size: 14px; line-height: 1.5; margin: 0; }
-  .brand { margin-top: 24px; padding-top: 24px; border-top: 1px solid rgba(255,255,255,.08); }
+  .cal { margin-top: 24px; padding-top: 22px; border-top: 1px solid rgba(255,255,255,.08); display: flex; flex-direction: column; gap: 8px; }
+  .cal-label { font-size: 11px; color: rgba(255,255,255,.5); text-transform: uppercase; letter-spacing: 1.2px; margin-bottom: 6px; }
+  .cal-btn { display: block; padding: 11px 14px; border-radius: 10px; background: rgba(255,255,255,.06); color: #fff; text-decoration: none; font-size: 13.5px; font-weight: 600; border: 1px solid rgba(255,255,255,.1); transition: background .15s; }
+  .cal-btn:hover { background: rgba(255,255,255,.12); }
+  .cal-btn-primary { background: linear-gradient(135deg, #d4af37 0%, #b8932d 100%); color: #0b0d10; border-color: transparent; }
+  .cal-btn-primary:hover { filter: brightness(1.05); background: linear-gradient(135deg, #d4af37 0%, #b8932d 100%); }
+  .brand { margin-top: 22px; padding-top: 22px; border-top: 1px solid rgba(255,255,255,.08); }
   .brand img { max-width: 140px; opacity: .8; }
 </style>
 </head>
@@ -61,6 +146,7 @@ function htmlPage(opts: { title: string; heading: string; message: string; tone:
     <div class="icon">${opts.tone === 'success' ? '✓' : opts.tone === 'error' ? '!' : 'ℹ'}</div>
     <h1>${opts.heading}</h1>
     <p>${opts.message}</p>
+    ${calendarBlock}
     <div class="brand"><img src="/logo.png" alt="QVEMA Amplify"></div>
   </div>
 </body></html>`;
@@ -140,8 +226,9 @@ export default async function handler(request: Request): Promise<Response> {
       return htmlPage({
         title: 'Présence confirmée',
         heading: greet,
-        message: 'Votre présence est confirmée pour la soirée de lancement QVEMA Amplify, jeudi 4 juin 2026 au Palais Brongniart. Vous recevrez prochainement le programme détaillé.',
+        message: 'Votre présence est confirmée pour la soirée de lancement QVEMA Amplify, jeudi 4 juin 2026 au Palais Brongniart, à partir de 19h00.',
         tone: 'success',
+        calendar: true,
       });
     }
     return htmlPage({
