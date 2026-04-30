@@ -1,0 +1,15 @@
+BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//QVEMA Amplify//Event//FR
+CALSCALE:GREGORIAN
+METHOD:PUBLISH
+BEGIN:VEVENT
+UID:qvema-amplify-brongniart-2026@qvema-event-brongniart.vercel.app
+DTSTAMP:20260430T000000Z
+DTSTART:20260604T170000Z
+DTEND:20260604T210000Z
+SUMMARY:QVEMA Amplify · Soirée de lancement
+LOCATION:Palais Brongniart\, 16 Place de la Bourse\, 75002 Paris
+DESCRIPTION:Soirée de lancement de la plateforme QVEMA Amplify.\n\n19h00 — Cocktail d'accueil\n20h00 — Prises de parole : Michèle Benzeno\, Arthur Essebag\, Eric Larchevêque\, Marc Simoncini\, Alice Lhabouz\, Jean-Michel Karam\, Nicolas Dufourcq (BPI France) et Main Partner.
+END:VEVENT
+END:VCALENDAR
