@@ -1,5 +1,5 @@
 export const config = {
-  matcher: '/((?!_vercel|favicon\\.ico|logo\\.png|login-bg\\.jpg|invitation\\.png|email-template\\.html|event\\.ics|social/|api/rsvp).*)',
+  matcher: '/((?!_vercel|favicon\\.ico|logo\\.png|login-bg\\.jpg|invitation\\.png|email-template\\.html|event\\.ics|social/|api/rsvp|api/calendar).*)',
 };
 
 const COOKIE_NAME = 'qvema_auth';
