@@ -115,6 +115,20 @@ function htmlPage(opts: {
       <a class="cal-btn" href="${outlookCalendarUrl()}" target="_blank" rel="noopener">Outlook web</a>
     </div>`
     : '';
+  const socialBlock = opts.tone === 'error'
+    ? ''
+    : `
+    <div class="social">
+      <div class="social-label">Suivez-nous sur les réseaux sociaux</div>
+      <div class="social-icons">
+        <a href="https://www.facebook.com/qvema" target="_blank" rel="noopener"><img src="/social/facebook.png" alt="Facebook" width="32" height="32"></a>
+        <a href="https://www.instagram.com/qvema/" target="_blank" rel="noopener"><img src="/social/instagram.png" alt="Instagram" width="32" height="32"></a>
+        <a href="https://www.tiktok.com/@qvema_off" target="_blank" rel="noopener"><img src="/social/tiktok.png" alt="TikTok" width="32" height="32"></a>
+        <a href="https://www.snapchat.com/p/84d4ef21-ddb1-474c-aac0-13ed7dde095a/1536491037806592" target="_blank" rel="noopener"><img src="/social/snapchat.png" alt="Snapchat" width="32" height="32"></a>
+        <a href="https://www.youtube.com/@QVEMA" target="_blank" rel="noopener"><img src="/social/youtube.png" alt="YouTube" width="32" height="32"></a>
+      </div>
+      <a class="social-site" href="https://www.quiveutetremonassocie.com" target="_blank" rel="noopener">www.quiveutetremonassocie.com</a>
+    </div>`;
   const body = `<!DOCTYPE html>
 <html lang="fr"><head>
 <meta charset="utf-8">
@@ -137,6 +151,14 @@ function htmlPage(opts: {
   .cal-btn:hover { background: rgba(255,255,255,.12); }
   .cal-btn-primary { background: linear-gradient(135deg, #d4af37 0%, #b8932d 100%); color: #0b0d10; border-color: transparent; }
   .cal-btn-primary:hover { filter: brightness(1.05); background: linear-gradient(135deg, #d4af37 0%, #b8932d 100%); }
+  .social { margin-top: 24px; padding-top: 22px; border-top: 1px solid rgba(255,255,255,.08); }
+  .social-label { font-size: 11px; color: rgba(255,255,255,.55); text-transform: uppercase; letter-spacing: 1.4px; font-weight: 600; margin-bottom: 14px; }
+  .social-icons { display: flex; justify-content: center; gap: 14px; flex-wrap: wrap; }
+  .social-icons a { display: inline-flex; opacity: .85; transition: opacity .15s; }
+  .social-icons a:hover { opacity: 1; }
+  .social-icons img { display: block; width: 32px; height: 32px; }
+  .social-site { display: inline-block; margin-top: 16px; color: #fff; text-decoration: none; font-size: 13.5px; font-weight: 600; letter-spacing: .3px; opacity: .9; }
+  .social-site:hover { opacity: 1; text-decoration: underline; }
   .brand { margin-top: 22px; padding-top: 22px; border-top: 1px solid rgba(255,255,255,.08); }
   .brand img { max-width: 140px; opacity: .8; }
 </style>
@@ -147,6 +169,7 @@ function htmlPage(opts: {
     <h1>${opts.heading}</h1>
     <p>${opts.message}</p>
     ${calendarBlock}
+    ${socialBlock}
     <div class="brand"><img src="/logo.png" alt="QVEMA Amplify"></div>
   </div>
 </body></html>`;
