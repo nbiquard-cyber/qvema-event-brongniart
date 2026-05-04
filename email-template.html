@@ -4,6 +4,13 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Invitation QVEMA Amplify</title>
+<style>
+@media only screen and (max-width:480px) {
+  table.rsvp-buttons { width:100% !important; }
+  table.rsvp-buttons td.rsvp-cell { display:block !important; width:100% !important; padding:6px 0 !important; }
+  table.rsvp-buttons td.rsvp-cell a.rsvp-btn { display:block !important; width:100% !important; box-sizing:border-box !important; padding:16px 12px !important; font-size:15px !important; }
+}
+</style>
 </head>
 <body style="margin:0;padding:0;background-color:#0b0d10;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;color:#1a1a1a;">
 <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="background-color:#0b0d10;">
@@ -27,10 +34,10 @@
 </td></tr>
 <tr><td style="padding:32px 36px;background-color:#fafafa;border-top:1px solid #e5e5e5;" align="center">
 <p style="margin:0 0 18px;font-size:14px;font-weight:600;letter-spacing:1.5px;text-transform:uppercase;color:#1a1a1a;">RSVP — Avant le 28 mai 2026</p>
-<table role="presentation" cellpadding="0" cellspacing="0" border="0" style="margin:0 auto;">
+<table role="presentation" cellpadding="0" cellspacing="0" border="0" class="rsvp-buttons" style="margin:0 auto;">
 <tr>
-<td style="padding:0 6px;"><a href="%RSVP_YES_URL%" style="display:inline-block;padding:14px 28px;background-color:#b8932d;color:#ffffff;text-decoration:none;font-weight:700;font-size:14px;border-radius:8px;letter-spacing:.3px;">Je confirme ma présence</a></td>
-<td style="padding:0 6px;"><a href="%RSVP_NO_URL%" style="display:inline-block;padding:14px 28px;background-color:#ffffff;color:#1a1a1a;border:1.5px solid #d1d1d1;text-decoration:none;font-weight:700;font-size:14px;border-radius:8px;letter-spacing:.3px;">Je décline l'invitation</a></td>
+<td class="rsvp-cell" style="padding:0 6px;"><a href="%RSVP_YES_URL%" class="rsvp-btn" style="display:inline-block;padding:14px 28px;background-color:#b8932d;color:#ffffff;text-decoration:none;font-weight:700;font-size:14px;border-radius:8px;letter-spacing:.3px;">Je confirme ma présence</a></td>
+<td class="rsvp-cell" style="padding:0 6px;"><a href="%RSVP_NO_URL%" class="rsvp-btn" style="display:inline-block;padding:14px 28px;background-color:#ffffff;color:#1a1a1a;border:1.5px solid #d1d1d1;text-decoration:none;font-weight:700;font-size:14px;border-radius:8px;letter-spacing:.3px;">Je décline l'invitation</a></td>
 </tr>
 </table>
 <p style="margin:18px 0 0;font-size:12px;line-height:1.5;color:#7a7a7a;">Un simple clic suffit — votre réponse sera enregistrée automatiquement.</p>
