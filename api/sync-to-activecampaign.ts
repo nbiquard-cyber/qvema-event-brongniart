@@ -121,6 +121,9 @@ export default async function handler(request: Request): Promise<Response> {
               { field: fieldYes, value: yesUrl },
               { field: fieldNo, value: noUrl },
               { field: fieldOrg, value: organization },
+              { field: '5', value: guestId },
+              { field: '6', value: yesToken },
+              { field: '7', value: noToken },
             ],
           },
         };
