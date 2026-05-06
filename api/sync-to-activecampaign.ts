@@ -115,6 +115,34 @@ async function attachTag(
   });
 }
 
+async function loadAcListEmails(
+  acUrl: string,
+  acKey: string,
+  listId: string
+): Promise<Set<string>> {
+  const emails = new Set<string>();
+  let offset = 0;
+  while (true) {
+    const res = await acRequest(
+      acUrl,
+      acKey,
+      `/api/3/contactLists?filters%5Blist%5D=${encodeURIComponent(listId)}&filters%5Bstatus%5D=1&include=contact&limit=100&offset=${offset}`
+    );
+    if (!res.ok) break;
+    const data = (await res.json()) as {
+      contactLists?: unknown[];
+      contacts?: Array<{ email?: string }>;
+    };
+    const contacts = data.contacts ?? [];
+    for (const c of contacts) {
+      if (c.email) emails.add(c.email.toLowerCase());
+    }
+    if (contacts.length < 100) break;
+    offset += 100;
+  }
+  return emails;
+}
+
 export default async function handler(request: Request): Promise<Response> {
   try {
     if (request.method !== 'POST') {
@@ -159,6 +187,15 @@ export default async function handler(request: Request): Promise<Response> {
 
     const results: SyncResult[] = [];
     const skipped: SyncResult[] = [];
+
+    let body: Record<string, unknown> = {};
+    try { body = await request.json(); } catch { /* empty body OK */ }
+    const force = body.force === true;
+
+    const alreadySynced = force
+      ? new Set<string>()
+      : await loadAcListEmails(acUrl!, acKey!, acListId!);
+
     const tagsCache = await loadAcTags(acUrl!, acKey!);
 
     for (const g of candidates) {
@@ -169,6 +206,11 @@ export default async function handler(request: Request): Promise<Response> {
       const phone = ((g.phone as string) ?? '').trim();
       const organization = ((g.organization as string) ?? '').trim();
       const category = ((g.category as string) ?? '').trim();
+
+      if (alreadySynced.has(email.toLowerCase())) {
+        skipped.push({ guestId, email, status: 'skipped' });
+        continue;
+      }
 
       try {
         const yesToken = await hmac(secret!, `${guestId}:oui`);
