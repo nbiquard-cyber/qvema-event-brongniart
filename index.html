@@ -1068,6 +1068,7 @@
             <button class="btn btn-ghost btn-sm" onclick="syncToActiveCampaign(true)" title="Forcer une re-synchronisation de tous les contacts (ex. après changement massif)">↻ Tout resynchroniser</button>
             <a href="https://qvemaamplify.activehosted.com/app/contacts" target="_blank" rel="noopener" class="btn btn-ghost btn-sm">↗ Ouvrir ActiveCampaign</a>
           </div>
+          <div id="ac-status" style="margin-top: 10px; font-size: 12.5px; color: var(--text-soft);"></div>
           <div id="ac-progress" style="margin-top: 12px;"></div>
           <div style="margin-top: 14px; padding: 12px 14px; background: var(--paper-2); border-radius: 8px; font-size: 12.5px; line-height: 1.55; color: var(--text-soft);">
             <strong>Une fois synchronisé</strong>, dans AC :<br>
@@ -1713,7 +1714,9 @@ function computeGuestStats() {
   const toRemind = data.guests.filter(g => g.rsvp === 'relancer').length;
   const plusOnes = data.guests.filter(g => g.rsvp === 'confirmé' && g.plusOne).length;
   const sent = data.guests.filter(g => g.invitationSent).length;
-  return { total, confirmed, declined, pending, toRemind, plusOnes, sent };
+  const acSynced = data.guests.filter(g => g.acSynced).length;
+  const acToPush = data.guests.filter(g => g.email && g.email.includes('@') && !g.acSynced).length;
+  return { total, confirmed, declined, pending, toRemind, plusOnes, sent, acSynced, acToPush };
 }
 function computeSupplierStats() {
   const count = data.suppliers.length;
@@ -2101,6 +2104,7 @@ function renderGuests() {
         <td>
           <strong>${escapeHtml(g.firstName)} ${escapeHtml(g.lastName)}</strong>
           ${g.invitationSent ? '<div style="font-size:10px; color: var(--emerald); margin-top: 2px;">✓ Invitation envoyée</div>' : ''}
+          <div style="font-size:10px; margin-top: 2px; color: ${g.acSynced ? 'var(--emerald)' : 'var(--amber)'};">${g.acSynced ? '✓ Push AC' : '⏳ No push AC'}</div>
         </td>
         <td>${escapeHtml(g.organization||'—')}</td>
         <td><a href="mailto:${escapeHtml(g.email||'')}" style="color: var(--indigo);">${escapeHtml(g.email||'—')}</a></td>
@@ -2333,6 +2337,15 @@ function importGuestsCSV(event) {
 function renderInvitations() {
   document.getElementById('invite-subject').value = data.template.subject;
   document.getElementById('invite-body').value = data.template.body;
+  const stats = computeGuestStats();
+  const acStatus = document.getElementById('ac-status');
+  if (acStatus) {
+    if (stats.acToPush === 0) {
+      acStatus.innerHTML = `<span style="color: var(--emerald);">✓ Tous les invités avec email (${stats.acSynced}) sont déjà dans ActiveCampaign.</span>`;
+    } else {
+      acStatus.innerHTML = `<strong style="color: var(--amber);">${stats.acToPush} invité(s) à pousser</strong> · <span style="color: var(--emerald);">${stats.acSynced} déjà dans AC</span>`;
+    }
+  }
   renderRsvpTracking();
 }
 

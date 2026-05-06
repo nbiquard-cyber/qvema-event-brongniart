@@ -115,32 +115,46 @@ async function attachTag(
   });
 }
 
-async function loadAcListEmails(
-  acUrl: string,
-  acKey: string,
-  listId: string
-): Promise<Set<string>> {
-  const emails = new Set<string>();
-  let offset = 0;
-  while (true) {
-    const res = await acRequest(
-      acUrl,
-      acKey,
-      `/api/3/contactLists?filters%5Blist%5D=${encodeURIComponent(listId)}&filters%5Bstatus%5D=1&include=contact&limit=100&offset=${offset}`
+async function markGuestSynced(guestId: string, email: string): Promise<void> {
+  const url = process.env.SUPABASE_URL!;
+  const key = process.env.SUPABASE_SECRET_KEY!;
+  const ts = new Date().toISOString();
+  // 1. Update Supabase
+  try {
+    await fetch(`${url}/rest/v1/guests?id=eq.${encodeURIComponent(guestId)}`, {
+      method: 'PATCH',
+      headers: {
+        apikey: key,
+        authorization: `Bearer ${key}`,
+        'content-type': 'application/json',
+        prefer: 'return=minimal',
+      },
+      body: JSON.stringify({ ac_synced: true, ac_synced_at: ts }),
+    });
+  } catch { /* best effort */ }
+
+  // 2. Mirror to Airtable (lookup by email + PATCH AC synced=true)
+  const pat = process.env.AIRTABLE_PAT;
+  const base = process.env.AIRTABLE_BASE;
+  const table = process.env.AIRTABLE_TABLE;
+  if (!pat || !base || !table || !email) return;
+  try {
+    const escaped = email.replace(/'/g, "\\'").toLowerCase();
+    const filter = encodeURIComponent(`LOWER({Mail}) = '${escaped}'`);
+    const findRes = await fetch(
+      `https://api.airtable.com/v0/${base}/${table}?filterByFormula=${filter}&maxRecords=1`,
+      { headers: { Authorization: `Bearer ${pat}` } }
     );
-    if (!res.ok) break;
-    const data = (await res.json()) as {
-      contactLists?: unknown[];
-      contacts?: Array<{ email?: string }>;
-    };
-    const contacts = data.contacts ?? [];
-    for (const c of contacts) {
-      if (c.email) emails.add(c.email.toLowerCase());
-    }
-    if (contacts.length < 100) break;
-    offset += 100;
-  }
-  return emails;
+    if (!findRes.ok) return;
+    const data = (await findRes.json()) as { records?: Array<{ id: string }> };
+    const recId = data.records?.[0]?.id;
+    if (!recId) return;
+    await fetch(`https://api.airtable.com/v0/${base}/${table}/${recId}`, {
+      method: 'PATCH',
+      headers: { Authorization: `Bearer ${pat}`, 'content-type': 'application/json' },
+      body: JSON.stringify({ fields: { 'AC synced': true } }),
+    });
+  } catch { /* best effort */ }
 }
 
 export default async function handler(request: Request): Promise<Response> {
@@ -181,20 +195,28 @@ export default async function handler(request: Request): Promise<Response> {
     }
 
     const all = await fetchGuests();
-    const candidates = all.filter(
-      (g) => typeof g.email === 'string' && (g.email as string).includes('@')
-    );
-
-    const results: SyncResult[] = [];
-    const skipped: SyncResult[] = [];
 
     let body: Record<string, unknown> = {};
     try { body = await request.json(); } catch { /* empty body OK */ }
     const force = body.force === true;
 
-    const alreadySynced = force
-      ? new Set<string>()
-      : await loadAcListEmails(acUrl!, acKey!, acListId!);
+    // Filter: must have email; if not force, also must be ac_synced=false
+    const candidates = all.filter((g) => {
+      if (typeof g.email !== 'string' || !(g.email as string).includes('@')) return false;
+      if (force) return true;
+      return g.ac_synced !== true;
+    });
+
+    const totalCandidates = candidates.length;
+    const totalSkipped = all.filter(
+      (g) =>
+        typeof g.email === 'string' &&
+        (g.email as string).includes('@') &&
+        g.ac_synced === true &&
+        !force
+    ).length;
+
+    const results: SyncResult[] = [];
 
     const tagsCache = await loadAcTags(acUrl!, acKey!);
 
@@ -206,11 +228,6 @@ export default async function handler(request: Request): Promise<Response> {
       const phone = ((g.phone as string) ?? '').trim();
       const organization = ((g.organization as string) ?? '').trim();
       const category = ((g.category as string) ?? '').trim();
-
-      if (alreadySynced.has(email.toLowerCase())) {
-        skipped.push({ guestId, email, status: 'skipped' });
-        continue;
-      }
 
       try {
         const yesToken = await hmac(secret!, `${guestId}:oui`);
@@ -276,6 +293,7 @@ export default async function handler(request: Request): Promise<Response> {
           if (tagId) await attachTag(acUrl!, acKey!, contactId, tagId);
         }
 
+        await markGuestSynced(guestId, email);
         results.push({ guestId, email, status: 'synced' });
       } catch (err) {
         results.push({
@@ -294,8 +312,8 @@ export default async function handler(request: Request): Promise<Response> {
       JSON.stringify({
         synced,
         failed,
-        skipped: skipped.length,
-        total: candidates.length,
+        skipped: totalSkipped,
+        total: totalCandidates + totalSkipped,
         listId: acListId,
         results,
       }),
