@@ -35,6 +35,19 @@ async function acRequest(
   path: string,
   init: RequestInit = {}
 ): Promise<Response> {
+  for (let attempt = 0; attempt < 4; attempt++) {
+    const res = await fetch(`${acUrl}${path}`, {
+      ...init,
+      headers: {
+        'Api-Token': acKey,
+        'content-type': 'application/json',
+        ...(init.headers ?? {}),
+      },
+    });
+    if (res.status !== 429) return res;
+    const retryAfter = parseFloat(res.headers.get('retry-after') ?? '1');
+    await new Promise((r) => setTimeout(r, Math.max(retryAfter * 1000, 500 * (attempt + 1))));
+  }
   return fetch(`${acUrl}${path}`, {
     ...init,
     headers: {

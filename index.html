@@ -2386,20 +2386,30 @@ async function syncToActiveCampaign() {
   if (withEmail.length === 0) { alert('Aucun invité avec un email valide à synchroniser'); return; }
   if (!confirm(`Pousser ${withEmail.length} invité(s) vers ActiveCampaign (liste QVEMA Brongniart 2026) ?`)) return;
 
-  progressEl.innerHTML = `<div class="alert alert-indigo"><span class="alert-icon">⇅</span><div>Synchronisation en cours pour <strong>${withEmail.length}</strong> contact(s)… cela peut prendre 1 à 3 minutes selon le volume.</div></div>`;
+  progressEl.innerHTML = `<div class="alert alert-indigo"><span class="alert-icon">⇅</span><div>Synchronisation en cours pour <strong>${withEmail.length}</strong> contact(s)… cela peut prendre 1 à 5 minutes selon le volume.</div></div>`;
+  let res, raw;
   try {
-    const res = await fetch('/api/sync-to-activecampaign', {
+    const t0 = Date.now();
+    res = await fetch('/api/sync-to-activecampaign', {
       method: 'POST',
       credentials: 'same-origin',
       headers: { 'content-type': 'application/json' },
       body: JSON.stringify({})
     });
-    const out = await res.json();
+    const elapsed = ((Date.now() - t0) / 1000).toFixed(1);
+    raw = await res.text();
+    console.log('[sync-debug]', { status: res.status, elapsed_s: elapsed, contentType: res.headers.get('content-type'), bodyLen: raw.length, bodyPreview: raw.slice(0, 500) });
+    let out;
+    try { out = JSON.parse(raw); }
+    catch (parseErr) {
+      throw new Error(`HTTP ${res.status} après ${elapsed}s — réponse non-JSON (${raw.length} octets). Aperçu : ${raw.slice(0, 200)}`);
+    }
     if (!res.ok) throw new Error(out.error || ('HTTP ' + res.status));
     const failures = (out.results || []).filter(r => r.status === 'failed').slice(0, 3).map(r => `${r.email}: ${r.error}`).join(' · ');
-    progressEl.innerHTML = `<div class="alert ${out.failed ? 'alert-amber' : 'alert-emerald'}"><span class="alert-icon">✓</span><div><strong>${out.synced}/${out.total} synchronisés</strong>${out.failed ? ` · ${out.failed} échec(s)${failures ? ' — ' + escapeHtml(failures) : ''}` : ''}.<br>Allez maintenant dans <a href="https://qvemaamplify.activehosted.com/campaign/list" target="_blank" rel="noopener" style="color: inherit;">ActiveCampaign → Campaigns</a> pour designer et envoyer.</div></div>`;
+    progressEl.innerHTML = `<div class="alert ${out.failed ? 'alert-amber' : 'alert-emerald'}"><span class="alert-icon">✓</span><div><strong>${out.synced}/${out.total} synchronisés</strong>${out.failed ? ` · ${out.failed} échec(s)${failures ? ' — ' + escapeHtml(failures) : ''}` : ''} en ${elapsed}s.<br>Allez maintenant dans <a href="https://qvemaamplify.activehosted.com/campaign/list" target="_blank" rel="noopener" style="color: inherit;">ActiveCampaign → Campaigns</a> pour designer et envoyer.</div></div>`;
   } catch (err) {
-    progressEl.innerHTML = `<div class="alert alert-rose"><span class="alert-icon">!</span><div>Erreur : ${escapeHtml(err.message)}</div></div>`;
+    console.error('[sync-debug] error', err, { res, raw });
+    progressEl.innerHTML = `<div class="alert alert-rose"><span class="alert-icon">!</span><div>Erreur : ${escapeHtml(err.message)}<br><small style="opacity:.7;">Détails complets dans la console (F12 → Console).</small></div></div>`;
   }
 }
 
