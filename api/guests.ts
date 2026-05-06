@@ -62,6 +62,88 @@ function jsonResponse(body: unknown, status = 200): Response {
   });
 }
 
+const AIRTABLE_VALID_CATEGORIES = new Set([
+  'VIP', 'Investisseur', 'Candidat', 'Entrepreneurs QVEMA',
+  'Presse', 'Partenaire', 'Équipe', 'Autre',
+]);
+
+function airtableFields(g: Record<string, unknown>): Record<string, unknown> {
+  const first = ((g.first_name as string) ?? '').trim();
+  const last = ((g.last_name as string) ?? '').trim();
+  const cat = ((g.category as string) ?? '').trim();
+  const out: Record<string, unknown> = {
+    'Nom complet': `${first} ${last}`.trim(),
+    'Prénom': first,
+    'NOM': last,
+    'Mail': ((g.email as string) ?? '').trim(),
+    'Téléphone': ((g.phone as string) ?? '').trim(),
+    'Entreprise': ((g.organization as string) ?? '').trim(),
+    'RSVP': ((g.rsvp as string) ?? 'en attente').trim(),
+  };
+  if (AIRTABLE_VALID_CATEGORIES.has(cat)) out['Catégorie'] = cat;
+  return out;
+}
+
+async function airtableFindIdByEmail(email: string): Promise<string | null> {
+  const pat = process.env.AIRTABLE_PAT;
+  const base = process.env.AIRTABLE_BASE;
+  const table = process.env.AIRTABLE_TABLE;
+  if (!pat || !base || !table || !email) return null;
+  const escaped = email.replace(/'/g, "\\'").toLowerCase();
+  const filter = encodeURIComponent(`LOWER({Mail}) = '${escaped}'`);
+  const res = await fetch(
+    `https://api.airtable.com/v0/${base}/${table}?filterByFormula=${filter}&maxRecords=1`,
+    { headers: { Authorization: `Bearer ${pat}` } }
+  );
+  if (!res.ok) return null;
+  const data = (await res.json()) as { records?: Array<{ id: string }> };
+  return data.records?.[0]?.id ?? null;
+}
+
+async function airtableUpsert(g: Record<string, unknown>): Promise<void> {
+  const pat = process.env.AIRTABLE_PAT;
+  const base = process.env.AIRTABLE_BASE;
+  const table = process.env.AIRTABLE_TABLE;
+  const email = ((g.email as string) ?? '').trim();
+  if (!pat || !base || !table || !email) return;
+  try {
+    const fields = airtableFields(g);
+    const recId = await airtableFindIdByEmail(email);
+    if (recId) {
+      await fetch(`https://api.airtable.com/v0/${base}/${table}/${recId}`, {
+        method: 'PATCH',
+        headers: { Authorization: `Bearer ${pat}`, 'content-type': 'application/json' },
+        body: JSON.stringify({ fields }),
+      });
+    } else {
+      await fetch(`https://api.airtable.com/v0/${base}/${table}`, {
+        method: 'POST',
+        headers: { Authorization: `Bearer ${pat}`, 'content-type': 'application/json' },
+        body: JSON.stringify({ records: [{ fields }], typecast: true }),
+      });
+    }
+  } catch {
+    // best-effort mirror
+  }
+}
+
+async function airtableDeleteByEmail(email: string): Promise<void> {
+  const pat = process.env.AIRTABLE_PAT;
+  const base = process.env.AIRTABLE_BASE;
+  const table = process.env.AIRTABLE_TABLE;
+  if (!pat || !base || !table || !email) return;
+  try {
+    const recId = await airtableFindIdByEmail(email);
+    if (!recId) return;
+    await fetch(`https://api.airtable.com/v0/${base}/${table}/${recId}`, {
+      method: 'DELETE',
+      headers: { Authorization: `Bearer ${pat}` },
+    });
+  } catch {
+    // best-effort
+  }
+}
+
 export default async function handler(request: Request): Promise<Response> {
   try {
     const url = new URL(request.url);
@@ -93,6 +175,7 @@ export default async function handler(request: Request): Promise<Response> {
       });
       if (!res.ok) return jsonResponse({ error: await res.text() }, 502);
       const rows = (await res.json()) as Record<string, unknown>[];
+      await Promise.all(rows.map((r) => airtableUpsert(r)));
       return jsonResponse(rows.map(fromDb), 201);
     }
 
@@ -111,16 +194,24 @@ export default async function handler(request: Request): Promise<Response> {
       if (!res.ok) return jsonResponse({ error: await res.text() }, 502);
       const rows = (await res.json()) as Record<string, unknown>[];
       if (rows.length === 0) return jsonResponse({ error: 'not found' }, 404);
+      await airtableUpsert(rows[0]);
       return jsonResponse(fromDb(rows[0]));
     }
 
     if (request.method === 'DELETE') {
       const id = url.searchParams.get('id');
       if (!id) return jsonResponse({ error: 'id required' }, 400);
+      const lookup = await supabase(`/${SUPABASE_TABLE}?id=eq.${encodeURIComponent(id)}&select=email`);
+      let emailToDelete = '';
+      if (lookup.ok) {
+        const found = (await lookup.json()) as Array<{ email?: string }>;
+        emailToDelete = (found[0]?.email ?? '').trim();
+      }
       const res = await supabase(`/${SUPABASE_TABLE}?id=eq.${encodeURIComponent(id)}`, {
         method: 'DELETE',
       });
       if (!res.ok) return jsonResponse({ error: await res.text() }, 502);
+      if (emailToDelete) await airtableDeleteByEmail(emailToDelete);
       return new Response(null, { status: 204 });
     }
 

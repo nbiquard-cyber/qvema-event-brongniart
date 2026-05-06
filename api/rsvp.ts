@@ -34,6 +34,35 @@ async function supabasePatch(id: string, payload: Record<string, unknown>): Prom
   });
 }
 
+async function airtableUpdateRsvp(email: string, rsvpLabel: string): Promise<void> {
+  const pat = process.env.AIRTABLE_PAT;
+  const base = process.env.AIRTABLE_BASE;
+  const table = process.env.AIRTABLE_TABLE;
+  if (!pat || !base || !table || !email) return;
+  try {
+    const escaped = email.replace(/'/g, "\\'");
+    const filter = encodeURIComponent(`LOWER({Mail}) = '${escaped.toLowerCase()}'`);
+    const findRes = await fetch(
+      `https://api.airtable.com/v0/${base}/${table}?filterByFormula=${filter}&maxRecords=1`,
+      { headers: { Authorization: `Bearer ${pat}` } }
+    );
+    if (!findRes.ok) return;
+    const data = (await findRes.json()) as { records?: Array<{ id: string }> };
+    const recId = data.records?.[0]?.id;
+    if (!recId) return;
+    await fetch(`https://api.airtable.com/v0/${base}/${table}/${recId}`, {
+      method: 'PATCH',
+      headers: {
+        Authorization: `Bearer ${pat}`,
+        'content-type': 'application/json',
+      },
+      body: JSON.stringify({ fields: { RSVP: rsvpLabel } }),
+    });
+  } catch {
+    // best-effort mirror; never block the user-facing flow
+  }
+}
+
 const EVENT = {
   title: 'QVEMA Amplify · Soirée de lancement',
   location: 'Palais Brongniart, 16 Place de la Bourse, 75002 Paris',
@@ -243,7 +272,10 @@ export default async function handler(request: Request): Promise<Response> {
     }
 
     const firstName = (rows[0].first_name as string) || '';
+    const guestEmail = (rows[0].email as string) || '';
     const greet = firstName ? `Merci ${firstName} !` : 'Merci !';
+
+    await airtableUpdateRsvp(guestEmail, rsvpLabel);
 
     if (response === 'oui') {
       return htmlPage({
