@@ -1,4 +1,4 @@
-export const config = { runtime: 'edge' };
+export const config = { runtime: 'nodejs', maxDuration: 300 };
 
 async function hmac(secret: string, message: string): Promise<string> {
   const enc = new TextEncoder();
