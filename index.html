@@ -989,6 +989,8 @@
             <option value="Investisseur">Investisseur</option>
             <option value="Candidat">Candidat</option>
             <option value="Entrepreneurs QVEMA">Entrepreneurs QVEMA</option>
+            <option value="Ambassadeurs">Ambassadeurs</option>
+            <option value="Jury">Jury</option>
             <option value="Presse">Presse</option>
             <option value="Partenaire">Partenaire</option>
             <option value="Équipe">Équipe</option>
@@ -2157,7 +2159,7 @@ function openGuestModal(id) {
       <div class="form-group">
         <label>Catégorie</label>
         <select id="g-cat">
-          ${['VIP','Investisseur','Candidat','Entrepreneurs QVEMA','Presse','Partenaire','Équipe','Autre']
+          ${['VIP','Investisseur','Candidat','Entrepreneurs QVEMA','Ambassadeurs','Jury','Presse','Partenaire','Équipe','Autre']
             .map(c => `<option ${g.category===c?'selected':''}>${c}</option>`).join('')}
         </select>
       </div>
