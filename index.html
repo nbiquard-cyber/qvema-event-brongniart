@@ -996,6 +996,7 @@
             <option value="Équipe">Équipe</option>
             <option value="Autre">Autre</option>
           </select>
+          <button class="btn btn-ghost btn-sm" onclick="syncFromAirtable()" title="Importer les nouveaux invités ajoutés directement dans Airtable">↓ Récupérer depuis Airtable</button>
           <select id="guest-rsvp-filter" onchange="renderGuests()">
             <option value="">Tous RSVP</option>
             <option value="en attente">En attente</option>
@@ -1536,7 +1537,7 @@ document.querySelectorAll('.nav-item').forEach(btn => {
     document.getElementById('sidebar-backdrop').classList.remove('show');
     if (tab === 'dashboard') renderDashboard();
     if (tab === 'suppliers') renderSuppliers();
-    if (tab === 'guests') renderGuests();
+    if (tab === 'guests') { renderGuests(); syncFromAirtable(true); }
     if (tab === 'invitations') renderInvitations();
     if (tab === 'budget') renderBudget();
     if (tab === 'planning') renderTasks();
@@ -2392,6 +2393,30 @@ async function sendInviteToGuest(id) {
   setTimeout(renderGuests, 500);
   try { await apiGuests.update(id, { invitationSent: true, invitationSentAt: sentAt }); }
   catch (err) { console.error('mark invitation failed', err); }
+}
+
+async function syncFromAirtable(silent = false) {
+  if (!silent && !confirm('Importer les invités ajoutés/modifiés dans Airtable ?')) return;
+  try {
+    const res = await fetch('/api/sync-from-airtable', {
+      method: 'POST',
+      credentials: 'same-origin',
+      headers: { 'content-type': 'application/json' },
+      body: '{}'
+    });
+    const out = await res.json();
+    if (!res.ok) throw new Error(out.error || ('HTTP ' + res.status));
+    // Reload guests list from Supabase
+    data.guests = await apiGuests.list();
+    renderGuests();
+    if (!silent) {
+      const msg = `Import Airtable : ${out.created} nouveau(x) · ${out.updated} mis à jour · ${out.skipped} inchangé(s)${out.failed ? ' · '+out.failed+' échec(s)' : ''}`;
+      showToast(msg);
+    }
+  } catch (err) {
+    if (!silent) alert('Erreur import Airtable : ' + err.message);
+    console.error('[sync-from-airtable]', err);
+  }
 }
 
 async function syncToActiveCampaign(force = false) {
