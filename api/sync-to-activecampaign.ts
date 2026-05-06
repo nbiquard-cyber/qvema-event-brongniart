@@ -52,6 +52,56 @@ interface SyncResult {
   error?: string;
 }
 
+const TAG_PREFIX = 'Brongniart - ';
+
+async function loadAcTags(acUrl: string, acKey: string): Promise<Map<string, string>> {
+  const map = new Map<string, string>();
+  let offset = 0;
+  while (true) {
+    const res = await acRequest(acUrl, acKey, `/api/3/tags?limit=100&offset=${offset}`);
+    if (!res.ok) break;
+    const data = (await res.json()) as { tags?: Array<{ id: string; tag: string }> };
+    const tags = data.tags ?? [];
+    for (const t of tags) map.set(t.tag, t.id);
+    if (tags.length < 100) break;
+    offset += 100;
+  }
+  return map;
+}
+
+async function ensureTag(
+  acUrl: string,
+  acKey: string,
+  cache: Map<string, string>,
+  tagName: string
+): Promise<string | null> {
+  const cached = cache.get(tagName);
+  if (cached) return cached;
+  const res = await acRequest(acUrl, acKey, '/api/3/tags', {
+    method: 'POST',
+    body: JSON.stringify({
+      tag: { tag: tagName, tagType: 'contact', description: 'Auto - Brongniart sync' },
+    }),
+  });
+  if (!res.ok) return null;
+  const data = (await res.json()) as { tag?: { id?: string } };
+  const id = data.tag?.id ?? null;
+  if (id) cache.set(tagName, id);
+  return id;
+}
+
+async function attachTag(
+  acUrl: string,
+  acKey: string,
+  contactId: string,
+  tagId: string
+): Promise<void> {
+  await acRequest(acUrl, acKey, '/api/3/contactTags', {
+    method: 'POST',
+    body: JSON.stringify({ contactTag: { contact: contactId, tag: tagId } }),
+  });
+}
+
 export default async function handler(request: Request): Promise<Response> {
   try {
     if (request.method !== 'POST') {
@@ -96,6 +146,7 @@ export default async function handler(request: Request): Promise<Response> {
 
     const results: SyncResult[] = [];
     const skipped: SyncResult[] = [];
+    const tagsCache = await loadAcTags(acUrl!, acKey!);
 
     for (const g of candidates) {
       const guestId = g.id as string;
@@ -104,6 +155,7 @@ export default async function handler(request: Request): Promise<Response> {
       const lastName = ((g.last_name as string) ?? '').trim();
       const phone = ((g.phone as string) ?? '').trim();
       const organization = ((g.organization as string) ?? '').trim();
+      const category = ((g.category as string) ?? '').trim();
 
       try {
         const yesToken = await hmac(secret!, `${guestId}:oui`);
@@ -161,6 +213,12 @@ export default async function handler(request: Request): Promise<Response> {
             error: 'list: ' + (await listRes.text()),
           });
           continue;
+        }
+
+        if (category) {
+          const tagName = TAG_PREFIX + category;
+          const tagId = await ensureTag(acUrl!, acKey!, tagsCache, tagName);
+          if (tagId) await attachTag(acUrl!, acKey!, contactId, tagId);
         }
 
         results.push({ guestId, email, status: 'synced' });
