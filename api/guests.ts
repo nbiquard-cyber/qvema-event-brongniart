@@ -112,21 +112,23 @@ async function airtableUpsert(g: Record<string, unknown>): Promise<void> {
   try {
     const fields = airtableFields(g);
     const recId = await airtableFindIdByEmail(email);
-    if (recId) {
-      await fetch(`https://api.airtable.com/v0/${base}/${table}/${recId}`, {
-        method: 'PATCH',
-        headers: { Authorization: `Bearer ${pat}`, 'content-type': 'application/json' },
-        body: JSON.stringify({ fields }),
-      });
-    } else {
-      await fetch(`https://api.airtable.com/v0/${base}/${table}`, {
-        method: 'POST',
-        headers: { Authorization: `Bearer ${pat}`, 'content-type': 'application/json' },
-        body: JSON.stringify({ records: [{ fields }], typecast: true }),
-      });
+    const url = recId
+      ? `https://api.airtable.com/v0/${base}/${table}/${recId}`
+      : `https://api.airtable.com/v0/${base}/${table}`;
+    const body = recId
+      ? JSON.stringify({ fields })
+      : JSON.stringify({ records: [{ fields }], typecast: true });
+    const res = await fetch(url, {
+      method: recId ? 'PATCH' : 'POST',
+      headers: { Authorization: `Bearer ${pat}`, 'content-type': 'application/json' },
+      body,
+    });
+    if (!res.ok) {
+      const text = await res.text();
+      console.error('[airtableUpsert] HTTP', res.status, 'for', email, '-', text.slice(0, 300));
     }
-  } catch {
-    // best-effort mirror
+  } catch (err) {
+    console.error('[airtableUpsert] threw for', email, ':', err);
   }
 }
 
