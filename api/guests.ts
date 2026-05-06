@@ -132,6 +132,87 @@ async function airtableUpsert(g: Record<string, unknown>): Promise<void> {
   }
 }
 
+async function acFindContactIdByEmail(email: string): Promise<string | null> {
+  const acUrl = process.env.AC_API_URL;
+  const acKey = process.env.AC_API_KEY;
+  if (!acUrl || !acKey || !email) return null;
+  const res = await fetch(`${acUrl}/api/3/contacts?email=${encodeURIComponent(email)}`, {
+    headers: { 'Api-Token': acKey },
+  });
+  if (!res.ok) return null;
+  const d = (await res.json()) as { contacts?: Array<{ id: string }> };
+  return d.contacts?.[0]?.id ?? null;
+}
+
+async function acReplaceCategoryTag(email: string, newCategory: string): Promise<void> {
+  const acUrl = process.env.AC_API_URL;
+  const acKey = process.env.AC_API_KEY;
+  if (!acUrl || !acKey || !email || !newCategory) return;
+  try {
+    const contactId = await acFindContactIdByEmail(email);
+    if (!contactId) return;
+    // List current contactTags
+    const ctRes = await fetch(`${acUrl}/api/3/contacts/${contactId}/contactTags`, {
+      headers: { 'Api-Token': acKey },
+    });
+    if (!ctRes.ok) return;
+    const ctData = (await ctRes.json()) as {
+      contactTags?: Array<{ id: string; tag: string }>;
+    };
+    // Get tag name lookup
+    const tagsRes = await fetch(`${acUrl}/api/3/tags?limit=200`, {
+      headers: { 'Api-Token': acKey },
+    });
+    if (!tagsRes.ok) return;
+    const tagsData = (await tagsRes.json()) as {
+      tags?: Array<{ id: string; tag: string }>;
+    };
+    const tagsByName = new Map<string, string>();
+    const tagsById = new Map<string, string>();
+    for (const t of tagsData.tags ?? []) {
+      tagsByName.set(t.tag, t.id);
+      tagsById.set(t.id, t.tag);
+    }
+    const desiredTagName = `Brongniart - ${newCategory}`;
+    // Delete every Brongniart-* contactTag that isn't the desired one
+    for (const ct of ctData.contactTags ?? []) {
+      const name = tagsById.get(ct.tag) ?? '';
+      if (name.startsWith('Brongniart - ') && name !== desiredTagName) {
+        await fetch(`${acUrl}/api/3/contactTags/${ct.id}`, {
+          method: 'DELETE',
+          headers: { 'Api-Token': acKey },
+        });
+      }
+    }
+    // Ensure desired tag exists + attached
+    let desiredId = tagsByName.get(desiredTagName);
+    if (!desiredId) {
+      const cRes = await fetch(`${acUrl}/api/3/tags`, {
+        method: 'POST',
+        headers: { 'Api-Token': acKey, 'content-type': 'application/json' },
+        body: JSON.stringify({
+          tag: { tag: desiredTagName, tagType: 'contact', description: 'Auto - Brongniart' },
+        }),
+      });
+      if (cRes.ok) {
+        const cData = (await cRes.json()) as { tag?: { id?: string } };
+        desiredId = cData.tag?.id;
+      }
+    }
+    if (!desiredId) return;
+    const alreadyHas = (ctData.contactTags ?? []).some((ct) => ct.tag === desiredId);
+    if (!alreadyHas) {
+      await fetch(`${acUrl}/api/3/contactTags`, {
+        method: 'POST',
+        headers: { 'Api-Token': acKey, 'content-type': 'application/json' },
+        body: JSON.stringify({ contactTag: { contact: contactId, tag: desiredId } }),
+      });
+    }
+  } catch (err) {
+    console.error('[acReplaceCategoryTag]', email, err);
+  }
+}
+
 async function airtableDeleteByEmail(email: string): Promise<void> {
   const pat = process.env.AIRTABLE_PAT;
   const base = process.env.AIRTABLE_BASE;
@@ -188,6 +269,7 @@ export default async function handler(request: Request): Promise<Response> {
       const id = url.searchParams.get('id');
       if (!id) return jsonResponse({ error: 'id required' }, 400);
       const body = await request.json();
+      const categoryChanged = Object.prototype.hasOwnProperty.call(body, 'category');
       const payload = toDb(body);
       delete payload.id;
       delete payload.created_at;
@@ -200,6 +282,13 @@ export default async function handler(request: Request): Promise<Response> {
       const rows = (await res.json()) as Record<string, unknown>[];
       if (rows.length === 0) return jsonResponse({ error: 'not found' }, 404);
       await airtableUpsert(rows[0]);
+      if (categoryChanged) {
+        const updatedEmail = ((rows[0].email as string) ?? '').trim();
+        const updatedCategory = ((rows[0].category as string) ?? '').trim();
+        if (updatedEmail && updatedCategory) {
+          await acReplaceCategoryTag(updatedEmail, updatedCategory);
+        }
+      }
       return jsonResponse(fromDb(rows[0]));
     }
 
