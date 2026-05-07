@@ -252,6 +252,7 @@ export default async function handler(request: Request): Promise<Response> {
     const rsvpLabel = RSVP_LABELS[response];
     const res = await supabasePatch(guest, {
       rsvp: rsvpLabel,
+      rsvp_responded_at: new Date().toISOString(),
     });
     if (!res.ok) {
       return htmlPage({

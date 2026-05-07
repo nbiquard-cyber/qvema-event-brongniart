@@ -1503,6 +1503,16 @@ function escapeHtml(s) {
   if (s == null) return '';
   return String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'})[c]);
 }
+function formatRelative(iso) {
+  if (!iso) return '';
+  const diff = (Date.now() - new Date(iso).getTime()) / 1000;
+  if (diff < 60) return 'à l\'instant';
+  if (diff < 3600) return `il y a ${Math.floor(diff/60)} min`;
+  if (diff < 86400) return `il y a ${Math.floor(diff/3600)} h`;
+  const days = Math.floor(diff/86400);
+  if (days < 30) return `il y a ${days} j`;
+  return new Date(iso).toLocaleDateString('fr-FR');
+}
 function getCategoryMeta(name) {
   return SUPPLIER_CATEGORIES.find(c => c.name === name) || SUPPLIER_CATEGORIES.find(c => c.name === 'Autre');
 }
@@ -2061,6 +2071,14 @@ function renderGuests() {
     (!rsvp || g.rsvp === rsvp)
   );
 
+  // Sort: most recently responded first; rows without a response timestamp go last
+  list.sort((a, b) => {
+    const ta = a.rsvpRespondedAt ? new Date(a.rsvpRespondedAt).getTime() : 0;
+    const tb = b.rsvpRespondedAt ? new Date(b.rsvpRespondedAt).getTime() : 0;
+    if (tb !== ta) return tb - ta;
+    return `${a.firstName} ${a.lastName}`.localeCompare(`${b.firstName} ${b.lastName}`);
+  });
+
   // Stats
   const stats = computeGuestStats();
   document.getElementById('guests-stats').innerHTML = `
@@ -2110,6 +2128,7 @@ function renderGuests() {
           <strong>${escapeHtml(g.firstName)} ${escapeHtml(g.lastName)}</strong>
           ${g.invitationSent ? '<div style="font-size:10px; color: var(--emerald); margin-top: 2px;">✓ Invitation envoyée</div>' : ''}
           <div style="font-size:10px; margin-top: 2px; color: ${g.acSynced ? 'var(--emerald)' : 'var(--amber)'};">${g.acSynced ? '✓ Push AC' : '⏳ No push AC'}</div>
+          ${g.rsvpRespondedAt ? `<div style="font-size:10px; margin-top: 2px; color: var(--text-muted);">Répondu ${formatRelative(g.rsvpRespondedAt)}</div>` : ''}
         </td>
         <td>${escapeHtml(g.organization||'—')}</td>
         <td><a href="mailto:${escapeHtml(g.email||'')}" style="color: var(--indigo);">${escapeHtml(g.email||'—')}</a></td>
@@ -2247,13 +2266,18 @@ async function deleteGuest(id) {
 async function updateGuestRsvp(id, value) {
   const g = data.guests.find(x => x.id === id);
   if (!g) return;
-  const previous = g.rsvp;
+  const previous = { rsvp: g.rsvp, rsvpRespondedAt: g.rsvpRespondedAt };
+  const now = new Date().toISOString();
   g.rsvp = value;
+  if (value === 'confirmé' || value === 'décliné') g.rsvpRespondedAt = now;
   renderGuests();
   try {
-    await apiGuests.update(id, { rsvp: value });
+    const payload = { rsvp: value };
+    if (value === 'confirmé' || value === 'décliné') payload.rsvpRespondedAt = now;
+    await apiGuests.update(id, payload);
   } catch (err) {
-    g.rsvp = previous;
+    g.rsvp = previous.rsvp;
+    g.rsvpRespondedAt = previous.rsvpRespondedAt;
     renderGuests();
     alert('Erreur RSVP : ' + err.message);
   }

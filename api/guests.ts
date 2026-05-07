@@ -14,6 +14,7 @@ const FIELD_MAP: Record<string, string> = {
   checkedInAt: 'checked_in_at',
   acSynced: 'ac_synced',
   acSyncedAt: 'ac_synced_at',
+  rsvpRespondedAt: 'rsvp_responded_at',
 };
 
 const REVERSE_FIELD_MAP: Record<string, string> = Object.fromEntries(
