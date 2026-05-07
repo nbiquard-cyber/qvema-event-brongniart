@@ -989,11 +989,14 @@
             <option value="Investisseur">Investisseur</option>
             <option value="Candidat">Candidat</option>
             <option value="Entrepreneurs QVEMA">Entrepreneurs QVEMA</option>
+            <option value="Coach QVEMA Amplify">Coach QVEMA Amplify</option>
+            <option value="Expert QVEMA Amplify">Expert QVEMA Amplify</option>
             <option value="Ambassadeurs">Ambassadeurs</option>
             <option value="Jury">Jury</option>
             <option value="Presse">Presse</option>
             <option value="Partenaire">Partenaire</option>
             <option value="Équipe">Équipe</option>
+            <option value="Guest">Guest</option>
             <option value="Autre">Autre</option>
           </select>
           <button class="btn btn-ghost btn-sm" onclick="syncFromAirtable()" title="Importer les nouveaux invités ajoutés directement dans Airtable">↓ Récupérer depuis Airtable</button>
@@ -2165,7 +2168,7 @@ function openGuestModal(id) {
       <div class="form-group">
         <label>Catégorie</label>
         <select id="g-cat">
-          ${['VIP','Investisseur','Candidat','Entrepreneurs QVEMA','Ambassadeurs','Jury','Presse','Partenaire','Équipe','Autre']
+          ${['VIP','Investisseur','Candidat','Entrepreneurs QVEMA','Coach QVEMA Amplify','Expert QVEMA Amplify','Ambassadeurs','Jury','Presse','Partenaire','Équipe','Guest','Autre']
             .map(c => `<option ${g.category===c?'selected':''}>${c}</option>`).join('')}
         </select>
       </div>

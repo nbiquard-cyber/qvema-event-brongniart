@@ -66,8 +66,9 @@ function jsonResponse(body: unknown, status = 200): Response {
 
 const AIRTABLE_VALID_CATEGORIES = new Set([
   'VIP', 'Investisseur', 'Candidat', 'Entrepreneurs QVEMA',
+  'Coach QVEMA Amplify', 'Expert QVEMA Amplify',
   'Ambassadeurs', 'Jury',
-  'Presse', 'Partenaire', 'Équipe', 'Autre',
+  'Presse', 'Partenaire', 'Équipe', 'Guest', 'Autre',
 ]);
 
 function airtableFields(g: Record<string, unknown>): Record<string, unknown> {

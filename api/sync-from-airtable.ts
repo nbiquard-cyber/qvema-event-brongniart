@@ -2,7 +2,8 @@ export const config = { runtime: 'edge' };
 
 const VALID_CATEGORIES = new Set([
   'VIP', 'Investisseur', 'Candidat', 'Entrepreneurs QVEMA',
-  'Ambassadeurs', 'Jury', 'Presse', 'Partenaire', 'Équipe', 'Autre',
+  'Coach QVEMA Amplify', 'Expert QVEMA Amplify',
+  'Ambassadeurs', 'Jury', 'Presse', 'Partenaire', 'Équipe', 'Guest', 'Autre',
 ]);
 
 interface AirtableRecord {
