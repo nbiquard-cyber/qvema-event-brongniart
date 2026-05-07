@@ -2,7 +2,7 @@ export const config = { runtime: 'edge' };
 
 const VALID_CATEGORIES = new Set([
   'VIP', 'Investisseur', 'Candidat', 'Entrepreneurs QVEMA',
-  'Coach QVEMA Amplify', 'Expert QVEMA Amplify',
+  'Coach QVEMA Amplify', 'Expert QVEMA Amplify', 'Board QVEMA Amplify',
   'Ambassadeurs', 'Jury', 'Presse', 'Partenaire', 'Équipe', 'Guest', 'Autre',
 ]);
 
