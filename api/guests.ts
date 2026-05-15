@@ -21,11 +21,19 @@ const REVERSE_FIELD_MAP: Record<string, string> = Object.fromEntries(
   Object.entries(FIELD_MAP).map(([k, v]) => [v, k])
 );
 
+// Columns with a NOT NULL constraint in Supabase — empty input stays '' (never null)
+const NEVER_NULL_COLUMNS = new Set(['first_name', 'last_name']);
+
 function toDb(input: Record<string, unknown>): Record<string, unknown> {
   const out: Record<string, unknown> = {};
   for (const [k, v] of Object.entries(input)) {
     if (v === undefined) continue;
-    out[FIELD_MAP[k] ?? k] = v === '' ? null : v;
+    const col = FIELD_MAP[k] ?? k;
+    if (v === '') {
+      out[col] = NEVER_NULL_COLUMNS.has(col) ? '' : null;
+    } else {
+      out[col] = v;
+    }
   }
   return out;
 }
