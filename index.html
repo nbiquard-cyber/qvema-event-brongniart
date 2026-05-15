@@ -2166,8 +2166,8 @@ function openGuestModal(id) {
         <input id="g-first" value="${escapeHtml(g.firstName)}" required>
       </div>
       <div class="form-group">
-        <label>Nom *</label>
-        <input id="g-last" value="${escapeHtml(g.lastName)}" required>
+        <label>Nom</label>
+        <input id="g-last" value="${escapeHtml(g.lastName)}">
       </div>
     </div>
     <div class="form-group">
@@ -2233,7 +2233,7 @@ async function saveGuest(id) {
     dietary: document.getElementById('g-diet').value.trim(),
     notes: document.getElementById('g-notes').value.trim()
   };
-  if (!payload.firstName || !payload.lastName) { alert('Prénom et nom obligatoires'); return; }
+  if (!payload.firstName) { alert('Prénom obligatoire'); return; }
   try {
     if (id) {
       const updated = await apiGuests.update(id, payload);
