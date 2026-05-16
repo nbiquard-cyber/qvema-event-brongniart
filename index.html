@@ -2287,9 +2287,25 @@ function toggleAllGuests(checkbox) {
 }
 
 function exportGuestsCSV() {
-  const headers = ['Prénom','Nom','Email','Organisation','Téléphone','Catégorie','RSVP','+1','Nom +1','Régime','Notes'];
-  const rows = data.guests.map(g => [g.firstName, g.lastName, g.email, g.organization, g.phone, g.category, g.rsvp, g.plusOne?'oui':'non', g.plusOneName, g.dietary, g.notes].map(v => `"${(v||'').toString().replace(/"/g,'""')}"`).join(','));
-  const csv = [headers.join(','), ...rows].join('\n');
+  const SEP = ';'; // French Excel default delimiter
+  const headers = ['Prénom','Nom','Email','Organisation','Téléphone','Catégorie','RSVP','+1','Nom +1','Régime','Notes','Répondu le','Push AC'];
+  const cell = (v) => {
+    let s = (v == null ? '' : String(v)).replace(/\r?\n/g, ' ');
+    // Quote only if the value contains the delimiter, a quote, or a newline
+    if (s.includes(SEP) || s.includes('"') || /[\r\n]/.test(s)) {
+      s = '"' + s.replace(/"/g, '""') + '"';
+    }
+    return s;
+  };
+  const line = (arr) => arr.map(cell).join(SEP);
+  const rows = data.guests.map(g => line([
+    g.firstName, g.lastName, g.email, g.organization, g.phone, g.category,
+    g.rsvp, g.plusOne ? 'oui' : 'non', g.plusOneName, g.dietary, g.notes,
+    g.rsvpRespondedAt ? new Date(g.rsvpRespondedAt).toLocaleString('fr-FR') : '',
+    g.acSynced ? 'oui' : 'non'
+  ]));
+  // Prepend UTF-8 BOM so Excel renders accented characters correctly
+  const csv = '﻿' + [line(headers), ...rows].join('\r\n');
   downloadFile('invites-qvema.csv', csv, 'text/csv;charset=utf-8');
   showToast(`${data.guests.length} invité(s) exporté(s)`);
 }
