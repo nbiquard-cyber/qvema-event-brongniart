@@ -890,6 +890,16 @@
           </div>
         </div>
 
+        <div class="card" style="margin-top: 16px;">
+          <div class="card-header">
+            <div>
+              <div class="card-title">Confirmés par catégorie</div>
+              <div class="card-sub">Catégories sans confirmé masquées</div>
+            </div>
+          </div>
+          <div id="confirmed-by-category-dashboard"></div>
+        </div>
+
         <div class="grid-3" style="margin-top: 16px;">
           <div class="card">
             <div class="card-header">
@@ -980,6 +990,16 @@
         </div>
 
         <div class="stats-grid" id="guests-stats"></div>
+
+        <div class="card" style="margin-top: 16px; margin-bottom: 16px;">
+          <div class="card-header">
+            <div>
+              <div class="card-title">Confirmés par catégorie</div>
+              <div class="card-sub">Catégories sans confirmé masquées</div>
+            </div>
+          </div>
+          <div id="confirmed-by-category-guests"></div>
+        </div>
 
         <div class="toolbar">
           <div class="search-box"><input id="guest-search" placeholder="Rechercher (nom, email, organisation)..." oninput="renderGuests()"></div>
@@ -1692,6 +1712,9 @@ function renderDashboard() {
     `;
   }
 
+  // Confirmed-by-category panel
+  renderConfirmedByCategory('confirmed-by-category-dashboard');
+
   // Donut chart
   document.getElementById('budget-donut').innerHTML = renderDonut();
 
@@ -1732,6 +1755,43 @@ function computeGuestStats() {
   const acSynced = data.guests.filter(g => g.acSynced).length;
   const acToPush = data.guests.filter(g => g.email && g.email.includes('@') && !g.acSynced).length;
   return { total, confirmed, declined, pending, toRemind, plusOnes, sent, acSynced, acToPush };
+}
+
+function computeConfirmedByCategory() {
+  const counts = {};
+  for (const g of data.guests) {
+    if (g.rsvp !== 'confirmé') continue;
+    const cat = g.category || 'Sans catégorie';
+    counts[cat] = (counts[cat] || 0) + 1;
+  }
+  return Object.entries(counts)
+    .map(([category, count]) => ({ category, count }))
+    .sort((a, b) => b.count - a.count || a.category.localeCompare(b.category));
+}
+
+function renderConfirmedByCategory(targetId) {
+  const el = document.getElementById(targetId);
+  if (!el) return;
+  const rows = computeConfirmedByCategory();
+  const total = rows.reduce((s, r) => s + r.count, 0);
+  if (total === 0) {
+    el.innerHTML = '<div class="empty" style="padding:18px 0;"><div class="empty-icon">◉</div><div class="empty-title">Aucun confirmé pour le moment</div><div class="empty-text">Les catégories apparaîtront ici dès qu\'un invité confirme.</div></div>';
+    return;
+  }
+  el.innerHTML = `
+    <div style="display:grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap:10px;">
+      ${rows.map(r => `
+        <div style="display:flex; justify-content:space-between; align-items:center; padding:10px 14px; background:var(--surface-soft); border:1px solid var(--border); border-radius:10px;">
+          <span style="font-size:13px; color:var(--text-soft); font-weight:500;">${escapeHtml(r.category)}</span>
+          <strong style="font-size:18px; color:var(--emerald); letter-spacing:-0.01em;">${r.count}</strong>
+        </div>
+      `).join('')}
+    </div>
+    <div style="margin-top:14px; display:flex; justify-content:space-between; align-items:baseline; padding-top:12px; border-top:1px solid var(--border);">
+      <span style="font-size:12px; color:var(--text-muted); text-transform:uppercase; letter-spacing:0.6px; font-weight:600;">Total confirmés</span>
+      <strong style="font-size:20px; color:var(--text); letter-spacing:-0.02em;">${total}</strong>
+    </div>
+  `;
 }
 function computeSupplierStats() {
   const count = data.suppliers.length;
@@ -2107,6 +2167,8 @@ function renderGuests() {
       <div class="stat-sub">${stats.total > 0 ? Math.round(stats.declined/stats.total*100) : 0}% du total</div>
     </div>
   `;
+
+  renderConfirmedByCategory('confirmed-by-category-guests');
 
   const tbody = document.getElementById('guests-tbody');
   if (list.length === 0) {
