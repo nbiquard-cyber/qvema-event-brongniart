@@ -258,7 +258,7 @@ export default async function handler(request: Request): Promise<Response> {
         title: 'Inscriptions closes',
         heading: 'Inscriptions closes',
         message:
-          'Merci de votre intérêt — les inscriptions à la soirée de lancement <strong>QVEMA Amplify</strong> du jeudi 4 juin 2026 au Palais Brongniart sont désormais closes.<br><br>Pour toute demande particulière, écrivez-nous à <a href="mailto:contact@qvemaamplify.com" style="color:#d4af37; font-weight:600; text-decoration:none;">contact@qvemaamplify.com</a> — nous reviendrons vers vous au plus vite.',
+          'Merci de votre intérêt — les inscriptions à la soirée de lancement <strong>Qui Veut Être Mon Associé Amplify</strong> du jeudi 4 juin 2026 au Palais Brongniart sont désormais closes.<br><br>Pour toute demande particulière, écrivez-nous à <a href="mailto:contact@qvemaamplify.com" style="color:#d4af37; font-weight:600; text-decoration:none;">contact@qvemaamplify.com</a> — nous reviendrons vers vous au plus vite.',
         tone: 'info',
       });
     }
