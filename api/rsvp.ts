@@ -213,6 +213,10 @@ const RSVP_LABELS: Record<string, string> = {
   non: 'décliné',
 };
 
+// Set to true to close incoming "Je confirme" responses from the email.
+// Declines remain accepted so organisers still get accurate non-attendance data.
+const REGISTRATIONS_CLOSED = true;
+
 export default async function handler(request: Request): Promise<Response> {
   try {
     const url = new URL(request.url);
@@ -246,6 +250,16 @@ export default async function handler(request: Request): Promise<Response> {
         heading: 'Lien d\'invitation invalide',
         message: 'Le lien de confirmation est expiré ou a été altéré. Merci de contacter l\'organisation.',
         tone: 'error',
+      });
+    }
+
+    if (REGISTRATIONS_CLOSED && response === 'oui') {
+      return htmlPage({
+        title: 'Inscriptions closes',
+        heading: 'Inscriptions closes',
+        message:
+          'Merci de votre intérêt — les inscriptions à la soirée de lancement <strong>QVEMA Amplify</strong> du jeudi 4 juin 2026 au Palais Brongniart sont désormais closes.<br><br>Pour toute demande particulière, écrivez-nous à <a href="mailto:contact@qvemaamplify.com" style="color:#d4af37; font-weight:600; text-decoration:none;">contact@qvemaamplify.com</a> — nous reviendrons vers vous au plus vite.',
+        tone: 'info',
       });
     }
 
