@@ -1040,6 +1040,7 @@
                   <th>Organisation</th>
                   <th>Email</th>
                   <th>Catégorie</th>
+                  <th>Badge</th>
                   <th>+1</th>
                   <th>RSVP</th>
                   <th></th>
@@ -1246,7 +1247,7 @@
             <div class="table-scroll">
               <table>
                 <thead>
-                  <tr><th>Présent</th><th>Nom</th><th>Organisation</th><th>+1</th><th>Heure</th><th>Notes</th></tr>
+                  <tr><th>Présent</th><th>Nom</th><th>Catégorie</th><th>Organisation</th><th>Badge</th><th>+1</th><th>Heure</th><th>Notes</th></tr>
                 </thead>
                 <tbody id="checkin-tbody"></tbody>
               </table>
@@ -2172,7 +2173,7 @@ function renderGuests() {
 
   const tbody = document.getElementById('guests-tbody');
   if (list.length === 0) {
-    tbody.innerHTML = '<tr><td colspan="8"><div class="empty"><div class="empty-icon">◉</div><div class="empty-title">Aucun invité</div><div class="empty-text">Importez un CSV ou ajoutez manuellement</div></div></td></tr>';
+    tbody.innerHTML = '<tr><td colspan="9"><div class="empty"><div class="empty-icon">◉</div><div class="empty-title">Aucun invité</div><div class="empty-text">Importez un CSV ou ajoutez manuellement</div></div></td></tr>';
     return;
   }
 
@@ -2195,6 +2196,7 @@ function renderGuests() {
         <td>${escapeHtml(g.organization||'—')}</td>
         <td><a href="mailto:${escapeHtml(g.email||'')}" style="color: var(--indigo);">${escapeHtml(g.email||'—')}</a></td>
         <td><span class="pill pill-indigo">${escapeHtml(g.category||'—')}</span></td>
+        <td><input type="checkbox" ${g.badge?'checked':''} onchange="toggleBadge('${g.id}')" style="width:18px; height:18px; accent-color: var(--gold); cursor:pointer;"></td>
         <td>${g.plusOne ? '✓ '+escapeHtml(g.plusOneName||'+1') : '—'}</td>
         <td>
           <select onchange="updateGuestRsvp('${g.id}', this.value)" style="padding: 5px 8px; font-size: 12px; min-width: 110px;">
@@ -2922,7 +2924,7 @@ function renderCheckin() {
 
   const tbody = document.getElementById('checkin-tbody');
   if (list.length === 0) {
-    tbody.innerHTML = '<tr><td colspan="6"><div class="empty"><div class="empty-icon">📋</div><div class="empty-title">Aucun invité confirmé</div></div></td></tr>';
+    tbody.innerHTML = '<tr><td colspan="8"><div class="empty"><div class="empty-icon">📋</div><div class="empty-title">Aucun invité confirmé</div></div></td></tr>';
   } else {
     tbody.innerHTML = list.map(g => `
       <tr>
@@ -2931,7 +2933,9 @@ function renderCheckin() {
           <strong>${escapeHtml(g.firstName)} ${escapeHtml(g.lastName)}</strong>
           ${g.dietary ? `<div style="font-size:10px; color: var(--amber); margin-top:2px;">⚠ ${escapeHtml(g.dietary)}</div>` : ''}
         </td>
+        <td><span class="pill pill-indigo">${escapeHtml(g.category||'—')}</span></td>
         <td>${escapeHtml(g.organization||'—')}</td>
+        <td><input type="checkbox" ${g.badge?'checked':''} onchange="toggleBadge('${g.id}')" style="width:18px; height:18px; accent-color: var(--gold); cursor:pointer;"></td>
         <td>${g.plusOne ? '✓ '+escapeHtml(g.plusOneName||'+1') : '—'}</td>
         <td style="font-size: 11px; color: var(--text-soft);">${g.checkedInAt ? new Date(g.checkedInAt).toLocaleTimeString('fr-FR',{hour:'2-digit',minute:'2-digit'}) : '—'}</td>
         <td style="font-size: 11px; color: var(--text-muted);">${escapeHtml(g.notes||'')}</td>
@@ -2964,6 +2968,23 @@ async function toggleCheckin(id) {
     g.checkedInAt = previous.checkedInAt;
     renderCheckin();
     alert('Erreur pointage : ' + err.message);
+  }
+}
+
+async function toggleBadge(id) {
+  const g = data.guests.find(x => x.id === id);
+  if (!g) return;
+  const previous = g.badge;
+  g.badge = !g.badge;
+  renderGuests();
+  renderCheckin();
+  try {
+    await apiGuests.update(id, { badge: g.badge });
+  } catch (err) {
+    g.badge = previous;
+    renderGuests();
+    renderCheckin();
+    alert('Erreur badge : ' + err.message);
   }
 }
 
