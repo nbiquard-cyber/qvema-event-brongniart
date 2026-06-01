@@ -93,6 +93,7 @@ function airtableFields(g: Record<string, unknown>): Record<string, unknown> {
     'Téléphone': ((g.phone as string) ?? '').trim(),
     'Entreprise': ((g.organization as string) ?? '').trim(),
     'RSVP': ((g.rsvp as string) ?? 'en attente').trim(),
+    'Badge': Boolean(g.badge),
   };
   if (AIRTABLE_VALID_CATEGORIES.has(cat)) out['Catégorie'] = cat;
   return out;

@@ -76,6 +76,7 @@ function airtableToGuest(f: Record<string, unknown>): Record<string, unknown> | 
     organization: clean(f['Entreprise']),
     category: VALID_CATEGORIES.has(cat) ? cat : (cat || 'Entrepreneurs QVEMA'),
     notes: clean(f['Notes']),
+    badge: Boolean(f['Badge']),
   };
 }
 
@@ -128,7 +129,7 @@ export default async function handler(request: Request): Promise<Response> {
         } else {
           // Only patch if any tracked field actually differs
           const fields: Array<keyof typeof guest> = [
-            'first_name','last_name','phone','organization','category','notes'
+            'first_name','last_name','phone','organization','category','notes','badge'
           ];
           const diff: Record<string, unknown> = {};
           for (const f of fields) {
