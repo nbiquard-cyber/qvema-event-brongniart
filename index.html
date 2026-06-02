@@ -2352,7 +2352,7 @@ function toggleAllGuests(checkbox) {
 
 function exportGuestsCSV() {
   const SEP = ';'; // French Excel default delimiter
-  const headers = ['Nom complet','Email','Organisation','Téléphone','Catégorie','RSVP','+1','Nom +1','Régime','Notes','Répondu le','Push AC'];
+  const headers = ['Nom complet','Email','Organisation','Téléphone','Catégorie','RSVP','Badge','+1','Nom +1','Régime','Notes','Répondu le','Push AC'];
   const cell = (v) => {
     let s = (v == null ? '' : String(v)).replace(/\r?\n/g, ' ');
     // Quote only if the value contains the delimiter, a quote, or a newline
@@ -2365,7 +2365,8 @@ function exportGuestsCSV() {
   const rows = data.guests.map(g => line([
     `${g.firstName || ''} ${g.lastName || ''}`.trim(),
     g.email, g.organization, g.phone, g.category,
-    g.rsvp, g.plusOne ? 'oui' : 'non', g.plusOneName, g.dietary, g.notes,
+    g.rsvp, g.badge ? 'oui' : 'non',
+    g.plusOne ? 'oui' : 'non', g.plusOneName, g.dietary, g.notes,
     g.rsvpRespondedAt ? new Date(g.rsvpRespondedAt).toLocaleString('fr-FR') : '',
     g.acSynced ? 'oui' : 'non'
   ]));
